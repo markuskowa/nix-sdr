@@ -5,8 +5,7 @@
 let
   version = "2.3.0";
 
-
-in stdenv.mkDerivation rec {
+in stdenv.mkDerivation {
   name = "odrAudioEnc-${version}";
 
   src = fetchFromGitHub {
@@ -20,7 +19,6 @@ in stdenv.mkDerivation rec {
   buildInputs = [ zeromq fdk_aacDab alsaLib vlc ];
 
   configureFlags = [
-    "--disable-dependency-tracking"
     "--enable-vlc"
     "--enable-alsa"
   ];
@@ -35,9 +33,9 @@ in stdenv.mkDerivation rec {
   '';
 
   meta = with stdenv.lib; {
-    description = "";
-    homepage = https://;
-    license = licenses.XXX;
+    description = "DAB/DAB+ audio encoder";
+    homepage = http://www.opendigitalradio.org/mmbtools;
+    license = with licenses; [ asl20 lgpl21 ];
     platforms = platforms.linux;
   };
 }
