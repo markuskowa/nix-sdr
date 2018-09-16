@@ -1,2 +1,2 @@
 # nix-sdr
-nixpkgs for experimental SDR packages
+nixpkgs overlay for experimental SDR packages
