@@ -37,6 +37,7 @@ in stdenv.mkDerivation {
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = with licenses; [ asl20 lgpl21 ];
     platforms = platforms.linux;
+    maintainers = [ maintainers.markuskowa ];
   };
 }
 

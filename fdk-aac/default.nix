@@ -26,6 +26,7 @@ in stdenv.mkDerivation {
     homepage = https://github.com/Opendigitalradio/fdk-aac;
     license = licenses.Fraunhofer;
     platforms = platforms.linux;
+    maintainers = [ maintainers.markuskowa ];
   };
 }
 
