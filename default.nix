@@ -2,7 +2,15 @@ self: super:
 
 with super;
 {
-  odrAudioEnc = callPackage ./odrAudioEnc {};
-  odrDabMux = callPackage ./odrDabMux {};
+  dablin = callPackage ./dablin {};
+
   fdk_aacDab = callPackage ./fdk-aac {};
+
+  odrAudioEnc = callPackage ./odrAudioEnc {};
+
+  odrDabMod = callPackage ./odrDabMod {};
+
+  odrDabMux = callPackage ./odrDabMux {};
+
+  odrPadEnc = callPackage ./odrPadEnc {};
 }

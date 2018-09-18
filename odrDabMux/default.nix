@@ -6,7 +6,7 @@ let
   version = "2.2.0";
 
 in stdenv.mkDerivation {
-  name = "odrAudioEnc-${version}";
+  name = "odrDabMux-${version}";
 
   src = fetchFromGitHub {
     owner = "Opendigitalradio";
@@ -28,13 +28,13 @@ in stdenv.mkDerivation {
 
   postInstall = ''
     mkdir -p $out/share/man/man1
-    mkdir -p $out/share/doc
+    mkdir -p $out/share/doc/odrDabMux
 
     cp doc/DabMux.1 $out/share/man/man1
-    cp doc/* $out/share/doc
+    cp doc/* $out/share/doc/odrDabMux
   '';
 
-  enableParalleBuilding = true;
+  enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
     description = "DAB/DAB+ multiplexer";
