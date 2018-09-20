@@ -40,6 +40,7 @@ in stdenv.mkDerivation {
     description = "DAB/DAB+ multiplexer";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = licenses.gpl3;
+    maintainers = maintainers.markuskowa;
     platforms = platforms.linux;
   };
 }
