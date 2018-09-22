@@ -19,4 +19,6 @@ with super;
   odrDabMux_gui = callPackage ./odrDabMux/gui.nix {};
 
   odrPadEnc = callPackage ./odrPadEnc {};
+
+  rx_tools = callPackage ./rx_tools {};
 }
