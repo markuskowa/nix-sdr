@@ -1,5 +1,5 @@
 { stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, zeromq, fftwFloat, uhd, boost
+, pkgconfig, zeromq, fftwFloat, uhd, boost, soapysdr-with-plugins
 } :
 
 let
@@ -16,7 +16,7 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkgconfig ];
-  buildInputs = [ zeromq fftwFloat uhd boost ];
+  buildInputs = [ zeromq fftwFloat uhd boost soapysdr-with-plugins ];
 
   configureFlags = [
     "--enable-fast-math"
