@@ -1,5 +1,5 @@
 { stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, zeromq, boost, curl
+, zeromq, boost, curl
 } :
 
 let
@@ -16,7 +16,7 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
-  buildInputs = [ zeromq boost curl ];
+  buildInputs = [ zeromq boost curl soapysdr-with-plugins ];
 
   configureFlags = [
     "--with-boost-thread=boost_thread"
