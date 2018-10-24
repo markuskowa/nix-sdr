@@ -16,7 +16,7 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
-  buildInputs = [ zeromq boost curl soapysdr-with-plugins ];
+  buildInputs = [ zeromq boost curl ];
 
   configureFlags = [
     "--with-boost-thread=boost_thread"
