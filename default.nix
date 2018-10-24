@@ -6,6 +6,8 @@ with super;
 
   dablin = callPackage ./dablin {};
 
+  dabtools = callPackage ./dabtools {};
+
   fdk_aacDab = callPackage ./fdk-aac {};
 
   libfec = callPackage ./libfec {};
