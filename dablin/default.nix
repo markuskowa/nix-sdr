@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "1.9.0";
+  version = "1.10.0";
 
 in stdenv.mkDerivation {
   name = "dablin-${version}";
@@ -12,7 +12,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "dablin";
     rev = "${version}";
-    sha256 = "1bjay6nd7q48d7dc4xh5wfl6wi6rgfzx5lsgn1idypnpp08zqrrq";
+    sha256 = "1cz8br3v4idd25k0326vqkc3clph29d1c2i8s9jmqs36iykn994d";
   };
 
   nativeBuildInputs = [ cmake pkgconfig ];
