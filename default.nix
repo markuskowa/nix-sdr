@@ -12,6 +12,8 @@ with super;
 
   libfec = callPackage ./libfec {};
 
+  kerberossdr = callPackage ./kerberossdr {};
+
   odrAudioEnc = callPackage ./odrAudioEnc {};
 
   odrDabMod = callPackage ./odrDabMod {};
