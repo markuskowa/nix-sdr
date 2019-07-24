@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "2.3.1";
+  version = "2.4.1";
 
 in stdenv.mkDerivation {
   name = "odrDabMux-${version}";
@@ -12,14 +12,14 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMux";
     rev = "v${version}";
-    sha256 = "06w5rmym2wavi03njnmap6wqk63q8bwb56fybhc88imq54fwl7hy";
+    sha256 = "0r5f6s5347f9zlr9cgd8p4r0y26f8abwgygasz51zh22ir0lipx3";
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
   buildInputs = [ zeromq boost curl ];
 
   configureFlags = [
-    "--with-boost-thread=boost_thread"
+     "--with-boost-system=boost_system"
   ];
 
   preConfigure = ''

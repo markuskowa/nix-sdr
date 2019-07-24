@@ -18,7 +18,7 @@ with super;
 
   odrDabMod = callPackage ./odrDabMod {};
 
-  odrDabMux = callPackage ./odrDabMux {};
+  odrDabMux = callPackage ./odrDabMux { };
 
   odrDabMux_gui = callPackage ./odrDabMux/gui.nix {};
 
