@@ -1,4 +1,6 @@
-{ stdenv, fetchFromGitHub, cmake, pkgconfig, libusb1, rtl-sdr, fftw  } :
+{ stdenv, fetchFromGitHub, cmake, pkgconfig
+, libusb1, rtl-sdr, fftw
+} :
 
 let
   version = "20180405";
@@ -17,9 +19,9 @@ in stdenv.mkDerivation {
   buildInputs = [ rtl-sdr fftw libusb1 ];
 
   meta = with stdenv.lib; {
-    description = "";
-    homepage = https://www.de;
-    license = licenses.mit;
+    description = "Commandline tools for DAB and DAB+ digital radio broadcasts";
+    homepage = "https://github.com/Opendigitalradio/dabtools";
+    license = licenses.gpl3Plus;
     platforms = platforms.linux;
   };
 }
