@@ -24,7 +24,7 @@ in stdenv.mkDerivation {
   meta = with stdenv.lib; {
     description = "Fraunhofer AAC+ library with DAB+ support";
     homepage = https://github.com/Opendigitalradio/fdk-aac;
-    license = licenses.Fraunhofer;
+    #license = licenses.Fraunhofer;
     platforms = platforms.linux;
     maintainers = [ maintainers.markuskowa ];
   };
