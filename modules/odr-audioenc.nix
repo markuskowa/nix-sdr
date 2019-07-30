@@ -7,6 +7,9 @@ let
 
   ###### Service modules
 
+  #
+  # encoder service
+  #
   audioEncService = name: cfg:
   let
     fifoPath = "/run/odr-${name}/pad.fifo";
@@ -20,7 +23,7 @@ let
 
     preStart = optionalString cfg.pad.enable ''
       mkdir -p /run/odr-${name}
-      if [ ! -c ${fifoPath} ]; then
+      if [ ! -p ${fifoPath} ]; then
         mkfifo ${fifoPath}
         chown -R odruser:odrgroup /run/odr-${name}
         chmod 0770 /run/odr-${name}
@@ -28,7 +31,6 @@ let
     '';
 
     serviceConfig = {
-      enable = true;
       Type = "simple";
       ExecStart = ''
         ${pkgs.odrAudioEnc}/bin/odr-audioenc \
@@ -41,9 +43,14 @@ let
       PermissionsStartOnly = "true";
       User = "odruser";
       Group = "odrgroup";
+      Restart = "always";
+      RestartSec = "5s";
     };
   };
 
+  #
+  # PAD service
+  #
   padEncService = name: cfg:
   let
     fifoPath = "/run/odr-${name}/pad.fifo";
@@ -51,23 +58,28 @@ let
     path = with pkgs; [ coreutils ];
 
     wantedBy = [ "multi-user.target" ];
-    after = [ "odr-audioenc-${name}" ];
-    requires = [ "odr-audioenc-${name}" ];
+    after = [ "odr-audioenc-${name}.service" ];
+    bindsTo = [ "odr-audioenc-${name}.service" ];
+    partOf = [ "odr-audioenc-${name}.service" ];
+
+    preStart = ''
+      if [ ! -p ${fifoPath} ]; then
+        sleep 5
+      fi
+    '';
 
     serviceConfig = {
       Type = "simple";
+
       ExecStart = ''
         ${pkgs.odrPadEnc}/bin/odr-padenc \
-        -o ${fifoPath} \
+        -o ${fifoPath} ${optionalString (cfg.pad.motDir != null) "-d ${cfg.pad.motDir}"} \
         -p ${toString cfg.padBytes} \
-        ${optionalString (cfg.pad.motDir != null) "-d ${cfg.pad.motDir}"} \
         ${concatMapStrings (dir: "-t ${dir} ") cfg.pad.dlsFiles} \
         ${cfg.pad.cmdlineOptions}
       '';
       User = "odruser";
       Group = "odrgroup";
-      #PIDFile = "/run/XXX.pid";
-      #ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
     };
   };
 
