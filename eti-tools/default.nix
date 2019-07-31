@@ -2,7 +2,7 @@
 } :
 
 let
-  version = "20180905";
+  version = "20190725";
 
 in stdenv.mkDerivation {
   name = "eti-tools-${version}";
@@ -10,8 +10,8 @@ in stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "piratfm";
     repo = "eti-tools";
-    rev = "1906876f3f00b5284ec8287b1f62e0e5537abcc9";
-    sha256 = "1vjckyrvr6sqwf8fyxwrdn0ih9gx1iambx72l1vk9h51xbj8l0b5";
+    rev = "65abc2651437b6062a6c03a55010a06339ff934b";
+    sha256 = "1r6wbww63a5cwj4nl6lm9ww3pyfx7mz04pl9qisx2j5s61x0gcn1";
   };
 
   nativeBuildInputs = [ ];
@@ -21,14 +21,19 @@ in stdenv.mkDerivation {
     # enable FEC
     sed -i 's/#CFLAGS+= -DHAVE_FEC/CFLAGS+= -DHAVE_FEC/' Makefile
     sed -i 's/#LDFLAGS+= -lfec/LDFLAGS+= -lfec/' Makefile
+    # enable ZeroMQ
+    sed -i 's/#CFLAGS+= -DHAVE_ZMQ/CFLAGS+= -DHAVE_ZMQ/' Makefile
+    sed -i 's/#LDFLAGS+= -lzmq/LDFLAGS+= -lzmq/' Makefile
   '';
 
-  installPhase = ''
-    mkdir -p $out/bin
+  preInstall = ''
+    export DESTDIR=$out
+  '';
 
-    for i in ni2http ts2na na2ts na2ni edi2eti eti2zmq; do
-      cp $i $out/bin
-    done
+  postInstall = ''
+    mkdir -p $out/bin
+    mv $out/usr/bin/* $out/bin/
+    rm -r $out/usr
   '';
 
   meta = with stdenv.lib; {
