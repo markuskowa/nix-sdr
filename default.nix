@@ -4,6 +4,10 @@ with super;
 {
   eti-tools = callPackage ./eti-tools {};
 
+  eti-cmdline-rtl-sdr = callPackage ./eti-stuff { device = "rtl-sdr"; };
+  eti-cmdline-rtl-tcp = callPackage ./eti-stuff { device = "rtl-tcp"; };
+  eti-cmdline-airspy = callPackage ./eti-stuff { device = "airspy"; };
+
   dablin = callPackage ./dablin {};
 
   dabtools = callPackage ./dabtools {};
