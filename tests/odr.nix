@@ -28,7 +28,7 @@ in {
       imports = [ defconf ];
       services.odr.audioenc.test = {
         enable = true;
-        input = "/dev/stdin";
+        input = "-";
         output = "tcp://mux:9000";
         pad = {
           enable = true;
@@ -64,7 +64,6 @@ in {
 
   testScript = ''
     startAll;
-
     $encoder->waitForUnit("odr-audioenc-test.service");
     $encoder->waitForUnit("odr-padenc-test.service");
     $mux->waitForUnit("odr-dabmux.service");

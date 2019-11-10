@@ -34,7 +34,7 @@ let
       Type = "simple";
       ExecStart = ''
         ${pkgs.odrAudioEnc}/bin/odr-audioenc \
-          ${cfg.input} \
+          -i ${cfg.input} \
           -b ${toString cfg.bitrate} \
           ${optionalString cfg.pad.enable ("-P ${fifoPath} -p ${toString cfg.padBytes}")} \
           -o ${cfg.output} \

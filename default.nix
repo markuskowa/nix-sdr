@@ -2,6 +2,8 @@ self: super:
 
 with super;
 {
+  etisnoop = callPackage ./etisnoop {};
+
   eti-tools = callPackage ./eti-tools {};
 
   eti-cmdline-rtl-sdr = callPackage ./eti-stuff { device = "rtl-sdr"; };
