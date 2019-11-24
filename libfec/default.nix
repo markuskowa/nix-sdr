@@ -29,7 +29,7 @@ in stdenv.mkDerivation {
   meta = with stdenv.lib; {
     description = "KA9Q fec library with additonal ARM support";
     homepage = https://github.com/Opendigitalradio/ka9q-fec;
-    license = licenses.lgp21;
+    license = licenses.lgpl21;
     maintainers = maintainers.markuskowa;
     platforms = platforms.linux;
   };
