@@ -32,5 +32,7 @@ with super;
 
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
 
+  rtptools = callPackage ./rtptools {};
+
   rx_tools = callPackage ./rx_tools {};
 }
