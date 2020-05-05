@@ -24,7 +24,7 @@ in stdenv.mkDerivation {
   nativeBuildInputs = [ cmake pkg-config ];
   buildInputs = [ fftwFloat libsndfile libsamplerate rtl-sdr airspy ];
 
-  cmakeFlags = [ (
+  cmakeFlags = [ "-DX64_DEFINED=1" (
     if device == "rtl-sdr" then "-DRTLSDR=ON" else
     if device == "rtl-tcp" then "-DRTL_TCP=ON" else
     if device == "airspy" then "-DAIRSPY=ON" else
