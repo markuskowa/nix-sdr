@@ -2,7 +2,7 @@
 } :
 
 let
-  version = "20190725";
+  version = "20200405";
 
 in stdenv.mkDerivation {
   name = "eti-tools-${version}";
@@ -10,8 +10,8 @@ in stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "piratfm";
     repo = "eti-tools";
-    rev = "65abc2651437b6062a6c03a55010a06339ff934b";
-    sha256 = "1r6wbww63a5cwj4nl6lm9ww3pyfx7mz04pl9qisx2j5s61x0gcn1";
+    rev = "8f07a2103c21eccf904eda82931f15c50d27928a";
+    sha256 = "1ja559iabf9r2xb9042ydghgngcwzbfimr7cx1bxbfwyd2iy70bq";
   };
 
   nativeBuildInputs = [ ];
