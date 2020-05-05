@@ -1,9 +1,9 @@
 { stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, zeromq, fdk_aacDab, alsaLib, vlc
+, pkgconfig, zeromq, alsaLib, vlc, curl
 } :
 
 let
-  version = "2.4.1";
+  version = "2.6.0";
 
 in stdenv.mkDerivation {
   name = "odrAudioEnc-${version}";
@@ -12,11 +12,11 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-AudioEnc";
     rev = "v${version}";
-    sha256 = "0vnnkbvs8clsysh7lkccpw7ipwn9qxbv92bgmvx4dm9cxdm7jcx8";
+    sha256 = "1llpc0b2idqb55744fmya2xkk3rp6lq2vn9rcazn25h2440avwgi";
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkgconfig ];
-  buildInputs = [ zeromq fdk_aacDab alsaLib vlc ];
+  buildInputs = [ zeromq alsaLib vlc curl ];
 
   configureFlags = [
     "--enable-vlc"
