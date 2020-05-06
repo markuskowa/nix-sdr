@@ -28,6 +28,8 @@ with super;
 
   odrPadEnc = callPackage ./odrPadEnc {};
 
+  odrSourceCompanion = callPackage ./odrSourceCompanion {};
+
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
 
   rtptools = callPackage ./rtptools {};
