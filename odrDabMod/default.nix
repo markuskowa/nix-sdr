@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "2.3.1";
+  version = "2.4.1";
 
 in stdenv.mkDerivation {
   name = "odrDabMod-${version}";
@@ -12,15 +12,20 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMod";
     rev = "v${version}";
-    sha256 = "1j98mgj009b3v8p9nl7h0dzj2pyxh9iyng0rni203a4xrc3b6xrd";
+    sha256 = "1qa8n59mdbfysg1s653dwy72ca0sk7m11q9b65nsrhha1px31cqd";
   };
 
-  nativeBuildInputs = [ autoconf automake libtool pkgconfig ];
+  nativeBuildInputs = [ autoconf automake libtool pkgconfig boost ];
   buildInputs = [ zeromq fftwFloat uhd boost soapysdr-with-plugins ];
+
+  CFLAGS="-O3 -DNDEBUG";
+  CXXFLAGS="-O3 -DNDEBUG";
 
   configureFlags = [
     "--enable-fast-math"
+    "--enable-limesdr"
     "--enable-edi"
+    "--with-boost-thread=boost_thread"
   ];
 
   preConfigure = ''
