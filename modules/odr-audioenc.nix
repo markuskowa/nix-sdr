@@ -12,7 +12,7 @@ let
   #
   audioEncService = name: cfg:
   let
-    fifoPath = "/run/odr-${name}/pad.fifo";
+    socketid = "odr-${name}.pad";
   in {
     enable = true;
     path = with pkgs; [ coreutils ];
@@ -21,14 +21,6 @@ let
     after = [ "network.target" ];
     requires = [ "network.target" ];
 
-    preStart = optionalString cfg.pad.enable ''
-      mkdir -p /run/odr-${name}
-      if [ ! -p ${fifoPath} ]; then
-        mkfifo ${fifoPath}
-        chown -R odruser:odrgroup /run/odr-${name}
-        chmod 0770 /run/odr-${name}
-      fi
-    '';
 
     serviceConfig = {
       Type = "simple";
@@ -36,7 +28,7 @@ let
         ${pkgs.odrAudioEnc}/bin/odr-audioenc \
           ${cfg.input} \
           -b ${toString cfg.bitrate} \
-          ${optionalString cfg.pad.enable ("-P ${fifoPath} -p ${toString cfg.padBytes}")} \
+          ${optionalString cfg.pad.enable ("-P ${socketid} -p ${toString cfg.padBytes}")} \
           -o ${cfg.output} \
           ${cfg.cmdlineOptions}
       '';
@@ -53,7 +45,7 @@ let
   #
   padEncService = name: cfg:
   let
-    fifoPath = "/run/odr-${name}/pad.fifo";
+    socketid = "odr-${name}.pad";
   in {
     path = with pkgs; [ coreutils ];
 
@@ -62,19 +54,12 @@ let
     bindsTo = [ "odr-audioenc-${name}.service" ];
     partOf = [ "odr-audioenc-${name}.service" ];
 
-    preStart = ''
-      if [ ! -p ${fifoPath} ]; then
-        sleep 5
-      fi
-    '';
-
     serviceConfig = {
       Type = "simple";
 
       ExecStart = ''
         ${pkgs.odrPadEnc}/bin/odr-padenc \
-        -o ${fifoPath} ${optionalString (cfg.pad.motDir != null) "-d ${cfg.pad.motDir}"} \
-        -p ${toString cfg.padBytes} \
+        -o ${socketid} ${optionalString (cfg.pad.motDir != null) "-d ${cfg.pad.motDir}"} \
         ${concatMapStrings (dir: "-t ${dir} ") cfg.pad.dlsFiles} \
         ${cfg.pad.cmdlineOptions}
       '';

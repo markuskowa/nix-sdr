@@ -28,7 +28,7 @@ in {
       imports = [ defconf ];
       services.odr.audioenc.test = {
         enable = true;
-        input = "/dev/zero";
+        input = "-i /dev/zero";
         output = "tcp://mux:9000";
         pad = {
           enable = true;
@@ -46,6 +46,17 @@ in {
           label = "TEST";
           inputfile = "tcp://*:9000";
         };
+        outputs = [ "throttle \"simul://\"" ''
+            edi {
+              destinations {
+                example_tcp {
+                  protocol tcp
+                  listenport 9030
+                }
+              }
+            }
+          ''
+        ];
       };
     };
 
@@ -53,8 +64,8 @@ in {
       imports = [ defconf ];
       services.odr.dabmod = {
         enable = true;
-        transport="tcp";
-        source="mux:9030";
+        transport="edi";
+        source="tcp://mux:9030";
 
         output="file";
         extraConfig = "filename=/dev/null";
