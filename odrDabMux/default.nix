@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "3.1.0";
+  version = "3.1.1";
 
 in stdenv.mkDerivation {
   name = "odrDabMux-${version}";
@@ -12,7 +12,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMux";
     rev = "v${version}";
-    sha256 = "1iv9ivvk0l4y1jfn9933kq0ab0z60yj9ywlyincvgs1frv366lp7";
+    sha256 = "0zjg0n8qlnrpwg7jamk0f1l0990gm4651lwwya9f30bh85kgc3vr";
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
