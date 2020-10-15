@@ -1,11 +1,11 @@
 { stdenv, fetchFromGitHub, cmake, pkg-config
 , fftwFloat, libsndfile, libsamplerate
-, rtl-sdr, airspy
+, rtl-sdr, airspy, libusb1
 , device ? "rtl-sdr"
 } :
 
 let
-  version = "20190623";
+  version = "20200512";
 
 in stdenv.mkDerivation {
   name = "eti-stuff-${version}";
@@ -13,8 +13,8 @@ in stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "JvanKatwijk";
     repo = "eti-stuff";
-    rev = "c99ad9e5c2d5fbe3988378f87c90a1f8bda64d79";
-    sha256 = "0rbi3fahgikqf3732lvhqvvxfgnwg071yxh36lwpzdc67fwqgq4k";
+    rev = "770485ca1a6ba477344c049b8a3fe4b8564a69bd";
+    sha256 = "1qdpb11s6pj40a6nzsnkdyy9m8iisjw01ncbzrhrp290j28v1pwb";
   };
 
   preConfigure = ''
@@ -22,7 +22,9 @@ in stdenv.mkDerivation {
   '';
 
   nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ fftwFloat libsndfile libsamplerate rtl-sdr airspy ];
+  buildInputs = [ fftwFloat libsndfile libsamplerate rtl-sdr airspy libusb1 ];
+
+  CFLAGS="-O3";
 
   cmakeFlags = [ "-DX64_DEFINED=1" (
     if device == "rtl-sdr" then "-DRTLSDR=ON" else
