@@ -2,7 +2,7 @@
 } :
 
 let
-  version = "20200405";
+  version = "20200926";
 
 in stdenv.mkDerivation {
   name = "eti-tools-${version}";
@@ -10,8 +10,8 @@ in stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "piratfm";
     repo = "eti-tools";
-    rev = "8f07a2103c21eccf904eda82931f15c50d27928a";
-    sha256 = "1ja559iabf9r2xb9042ydghgngcwzbfimr7cx1bxbfwyd2iy70bq";
+    rev = "c7ef54b72833b41cf59b23156f144b64b21ce5e1";
+    sha256 = "09hnxbx0czdgjph98g06zkk59xs9b2mznsypdyxzz9fmclz8j6i8";
   };
 
   nativeBuildInputs = [ ];
@@ -26,6 +26,10 @@ in stdenv.mkDerivation {
     sed -i 's/#LDFLAGS+= -lzmq/LDFLAGS+= -lzmq/' Makefile
   '';
 
+  postBuild = ''
+#    make ni2http
+  '';
+
   preInstall = ''
     export DESTDIR=$out
   '';
@@ -34,6 +38,8 @@ in stdenv.mkDerivation {
     mkdir -p $out/bin
     mv $out/usr/bin/* $out/bin/
     rm -r $out/usr
+
+#    cp ni2http $out/bin
   '';
 
   meta = with stdenv.lib; {
