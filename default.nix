@@ -2,6 +2,9 @@ self: super:
 
 with super;
 {
+
+  airspyAdsb = callPackage ./airspy_adsb {};
+
   etisnoop = callPackage ./etisnoop {};
 
   eti-tools = callPackage ./eti-tools {};
