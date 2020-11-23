@@ -38,4 +38,6 @@ with super;
   rtptools = callPackage ./rtptools {};
 
   rx_tools = callPackage ./rx_tools {};
+
+  sdr-dab = callPackage ./sdr-dab {};
 }
