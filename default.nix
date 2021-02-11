@@ -40,4 +40,6 @@ with super;
   rx_tools = callPackage ./rx_tools {};
 
   sdr-dab = callPackage ./sdr-dab { inherit (self.gst_all_1) gstreamer gst-plugins-base; };
+
+  waveplus-reader = callPackage ./waveplus-reader { };
 }
