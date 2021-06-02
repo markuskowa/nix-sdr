@@ -17,6 +17,8 @@ with super;
 
   fdk_aacDab = callPackage ./fdk-aac {};
 
+  ggwave = callPackage ./ggwave {};
+
   libfec = callPackage ./libfec {};
 
   kerberossdr = callPackage ./kerberossdr {};
