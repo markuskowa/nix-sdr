@@ -3,16 +3,17 @@
 } :
 
 let
-  version = "2.4.1";
+  version = "2.4.2";
 
 in stdenv.mkDerivation {
-  name = "odrDabMod-${version}";
+  pname = "odrDabMod";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "Opendigitalradio";
     repo = "ODR-DabMod";
     rev = "v${version}";
-    sha256 = "1qa8n59mdbfysg1s653dwy72ca0sk7m11q9b65nsrhha1px31cqd";
+    sha256 = "1ijqgpyp4afjj5w1nwyzwkvllhijy5nipaf3zhj76h9ck9qzb419";
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkgconfig boost ];
@@ -24,7 +25,6 @@ in stdenv.mkDerivation {
   configureFlags = [
     "--enable-fast-math"
     "--enable-limesdr"
-    "--enable-edi"
     "--with-boost-thread=boost_thread"
   ];
 
@@ -48,4 +48,3 @@ in stdenv.mkDerivation {
     maintainers = [ maintainers.markuskowa ];
   };
 }
-
