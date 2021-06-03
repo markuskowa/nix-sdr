@@ -31,6 +31,8 @@ with super;
 
   odrDabMux_gui = callPackage ./odrDabMux/gui.nix {};
 
+  odrEdi2Edi = callPackage ./odrEDI2EDI {};
+
   odrPadEnc = callPackage ./odrPadEnc {};
 
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
