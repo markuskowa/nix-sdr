@@ -1,4 +1,4 @@
-import <nixpkgs/nixos/tests/make-test.nix> ({ pkgs, lib, ... } :
+import <nixpkgs/nixos/tests/make-test-python.nix> ({ pkgs, lib, ... } :
 
 let
   defconf = {
@@ -74,12 +74,12 @@ in {
   };
 
   testScript = ''
-    $encoder->waitForUnit("multi-user.target");
-    $encoder->waitForUnit("odr-audioenc-test.service");
-    $encoder->waitForUnit("odr-padenc-test.service");
+    encoder.wait_for_unit("multi-user.target")
+    encoder.wait_for_unit("odr-audioenc-test.service")
+    encoder.wait_for_unit("odr-padenc-test.service")
 
-    $mux->waitForUnit("odr-dabmux.service");
+    mux.wait_for_unit("odr-dabmux.service")
 
-    $modulator->waitForUnit("odr-dabmod.service");
+    modulator.wait_for_unit("odr-dabmod.service")
   '';
 })
