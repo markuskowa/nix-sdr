@@ -13,8 +13,6 @@ with super;
   eti-cmdline-rtl-tcp = callPackage ./eti-stuff { device = "rtl-tcp"; };
   eti-cmdline-airspy = callPackage ./eti-stuff { device = "airspy"; };
 
-  dablin = callPackage ./dablin {};
-
   fdk_aacDab = callPackage ./fdk-aac {};
 
   ggwave = callPackage ./ggwave {};
