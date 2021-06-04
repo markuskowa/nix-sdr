@@ -21,6 +21,7 @@ let
 
     outputs {
       ${concatStringsSep "\n" cfg.outputs}
+      ${cfg.extraConfigOutputs}
     }
 
     services {
@@ -37,7 +38,7 @@ let
        ${concatStringsSep "\n" (attrValues (mapAttrs (name: c: ''
          subchannel-${name} {
            type "${c.channelType}"
-           inputfile "${c.inputfile}"
+           inputuri "${c.inputuri}"
            bitrate ${toString c.bitrate}
            protection ${toString c.protection}
            zmq-buffer ${toString c.zmq-buffer}
@@ -53,7 +54,11 @@ let
            type 0
            service service-${name}
            subchannel subchannel-${name}
-           ${optionalString c.slideShow "figtype 0x2"}
+           ${optionalString c.slideShow ''
+              user-applications {
+                userapp "slideshow"
+              }
+           ''}
            ${c.extraConfigComponent}
          }
        '') cfg.streams))}
@@ -118,6 +123,12 @@ in
           description = "Output definitions.";
         };
 
+        extraConfigOutputs = mkOption {
+          type = types.str;
+          default = "";
+          description = "Extra Output definitions.";
+        };
+
         extraConfig = mkOption {
           type = types.str;
           default = "";
@@ -143,7 +154,7 @@ in
               description = "Label of the service.";
             };
 
-            inputfile = mkOption {
+            inputuri = mkOption {
               type = types.str;
               description = "Input file name for URL.";
             };
