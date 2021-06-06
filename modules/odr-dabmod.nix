@@ -5,115 +5,83 @@ with lib;
 let
   cfg = config.services.odr.dabmod;
 
-  configMod = pkgs.writeText "config.mod" ''
-    [input]
-    transport=${cfg.transport}
-    source=${cfg.source}
-    ${cfg.extraConfigInput}
+  formatter = pkgs.formats.ini { };
 
-    [modulator]
-    gainmode=${cfg.gainmode}
-    rate=${toString cfg.rate}
-    ${cfg.extraConfigModulator}
+  usergroup = "odrdabmod";
 
-    [output]
-    output=${cfg.output}
-
-    ${if cfg.output == "file" then "[fileoutput]" else
-      if cfg.output == "uhd"  then "[uhdoutput]"  else
-      if cfg.output == "zmq"  then "[zmqoutput]"  else
-      "[soapyoutput]"}
-
-    ${optionalString (cfg.channel != null) cfg.channel}
-    ${optionalString (cfg.txgain != null) (toString cfg.txgain)}
-
-    ${cfg.extraConfig}
-  '';
-
-in
-{
+in {
   ###### interface
 
   options = {
     services.odr.dabmod = {
-        enable = mkEnableOption "Opendigital Radio DAB modulator";
+      enable = mkEnableOption "Opendigital Radio DAB modulator";
 
-        transport = mkOption {
-          type = types.enum [ "file" "tcp" "zeromq" "edi" ];
-          description = "Input transport type.";
-        };
+      settings =  mkOption {
+        default = {};
+        type = types.submodule {
+          freeformType = formatter.type;
+          options = {
+            input.transport = mkOption {
+              type = types.enum [ "file" "tcp" "zeromq" "edi" ];
+              description = "Input transport type.";
+              default = "edi";
+            };
 
-        source = mkOption {
-          type = types.str;
-          description = "Source path/URL for input.";
-        };
+            modulator = {
+              gainmode = mkOption {
+                type = types.enum [ "fix" "max" "var" ];
+                default = "var";
+                description = "Gain mode.";
+              };
 
-        extraConfigInput = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra options for the input section.";
-        };
+              rate = mkOption {
+                type = types.int;
+                default = 2048000;
+                description = "Sampling rate.";
+              };
+            };
 
-        gainmode = mkOption {
-          type = types.enum [ "fix" "max" "var" ];
-          default = "var";
-          description = "Modulator gain mode.";
+            output = {
+              output = mkOption {
+                type = types.enum [ "uhd" "file" "zmq" "soapysdr" "limesdr" ];
+                description = "Output device driver";
+                default = "file";
+              };
+            };
+          };
         };
-
-        rate = mkOption {
-          type = types.int;
-          default = 2048000;
-          description = "Modulator sampling rate.";
-        };
-
-        extraConfigModulator = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra options for modulator section.";
-        };
-
-        output = mkOption {
-          type = types.enum [ "uhd" "file" "zmq" "soapysdr" ];
-          description = "Output device driver";
-        };
-
-        channel = mkOption {
-          type = types.nullOr types.string;
-          default = null;
-          description = "Do not set if you want to use the frequency option or choose file/zmq output.";
-        };
-
-        txgain = mkOption {
-          type = types.nullOr types.float;
-          default = null;
-          description = "HW TX gain for output device";
-        };
-
-        extraConfig = mkOption {
-          type = types.str;
-          default = null;
-          description = "Extra configuration. Starts in the [*output] section.";
-        };
+      };
       };
   };
 
   ###### implementation
 
   config = {
-    systemd.services.odr-dabmod = mkIf (config.services.odr.enable && cfg.enable) {
+
+    # run as user (requires hardware access)
+    users.users."${usergroup}" = mkIf cfg.enable {
+      description   = "ODR DAB MUX daemon user";
+      isSystemUser  = true;
+      group         = usergroup;
+    };
+
+    users.groups."${usergroup}" = {};
+
+    systemd.services.odr-dabmod = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       requires = [ "network.target" ];
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.odrDabMod}/bin/odr-dabmod ${configMod}";
+        ExecStart = "${pkgs.odrDabMod}/bin/odr-dabmod ${formatter.generate "mod.cfg" cfg.settings}";
         CPUSchedulingPolicy = "rr";
         CPUSchedulingPriority = 50;
-        User = "odruser";
-        Group = "odrgroup";
+        User = usergroup;
+        Group = usergroup;
+        Restart = "always";
+        RestartSec = "5s";
       };
     };
   };
 }
-

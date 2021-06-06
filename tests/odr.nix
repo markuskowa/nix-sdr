@@ -41,22 +41,33 @@ in {
       imports = [ defconf ];
       services.odr.dabmux = {
         enable = true;
-        streams.tests = {
-          serviceId = "0x0001";
-          label = "TEST";
-          inputfile = "tcp://*:9000";
+        settings = {
+          outputs = {
+            throttle = "simul://";
+            edi.destinations.tcp = {
+              protocol = "tcp";
+              listenport = 9030;
+            };
+          };
+
+          services.test = {
+            id = "0x0001";
+            label = "Test";
+          };
+
+          subchannels.test = {
+            type = "dabplus";
+            id = 1;
+            bitrate = 128;
+            inputuri = "tcp://*:9000";
+            inputproto = "edi";
+          };
+
+          components.test = {
+            service = "test";
+            subchannel = "test";
+          };
         };
-        outputs = [ "throttle \"simul://\"" ''
-            edi {
-              destinations {
-                example_tcp {
-                  protocol tcp
-                  listenport 9030
-                }
-              }
-            }
-          ''
-        ];
       };
     };
 
@@ -64,11 +75,14 @@ in {
       imports = [ defconf ];
       services.odr.dabmod = {
         enable = true;
-        transport="edi";
-        source="tcp://mux:9030";
-
-        output="file";
-        extraConfig = "filename=/dev/null";
+        settings = {
+          input = {
+            transport = "edi";
+            source = "tcp://mux:9030";
+          };
+          output.output = "file";
+          fileoutput.filename = "/dev/null";
+        };
       };
     };
   };

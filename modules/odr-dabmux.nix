@@ -5,234 +5,191 @@ with lib;
 let
   cfg = config.services.odr.dabmux;
 
-  configMux = pkgs.writeText "config.mux" ''
-    general {
-      dabmode ${toString cfg.dabmode}
-      nbframes ${toString cfg.nbframes}
-      ${cfg.extraConfigGeneral}
-    }
+  usergroup = "odrdabmux";
 
-    ensemble {
-      ecc ${cfg.ecc}
-      id ${cfg.id}
-      label "${cfg.label}"
-      ${cfg.extraConfigEnsemble}
-    }
+  # formatter
+  attrsToString = set: concatStringsSep "\n" (
+    mapAttrsToList (key: val: valueToString key val) set );
 
-    outputs {
-      ${concatStringsSep "\n" cfg.outputs}
-      ${cfg.extraConfigOutputs}
-    }
+  valueToString = key: val:
+    if isList val then concatStringsSep "," (map (x: valueToString x) val)
+    else if isAttrs val then "${key} {\n${attrsToString val}\n}"
+    else if isBool val then (if val then "true" else "false")
+    else "${key} ${toString val}";
 
-    services {
-       ${concatStringsSep "\n" (attrValues (mapAttrs (name: c: ''
-         service-${name} {
-           id ${c.serviceId}
-           label "${c.label}"
-           ${c.extraConfigService}
-         }
-       '') cfg.streams))}
-    }
+  formatter = {
+    type = with types; let
+      valueType = oneOf [
+        bool
+        int
+        float
+        str
+        (listOf valueType)
+        (attrsOf valueType)
+      ] // {
+        description = "odrDabMux config file format";
+      };
+    in valueType;
 
-    subchannels {
-       ${concatStringsSep "\n" (attrValues (mapAttrs (name: c: ''
-         subchannel-${name} {
-           type "${c.channelType}"
-           inputuri "${c.inputuri}"
-           bitrate ${toString c.bitrate}
-           protection ${toString c.protection}
-           zmq-buffer ${toString c.zmq-buffer}
-           zmq-prebuffering ${toString c.zmq-prebuffering}
-           ${c.extraConfigSubchannel}
-         }
-       '') cfg.streams))}
-    }
+    generate = name: value:
+      pkgs.writeText name (attrsToString value);
+   };
 
-    components {
-       ${concatStringsSep "\n" (attrValues (mapAttrs (name: c: ''
-         component-${name} {
-           type 0
-           service service-${name}
-           subchannel subchannel-${name}
-           ${optionalString c.slideShow ''
-              user-applications {
-                userapp "slideshow"
-              }
-           ''}
-           ${c.extraConfigComponent}
-         }
-       '') cfg.streams))}
-    }
-
-    ${cfg.extraConfig}
-  '';
-
-in
-{
+in {
   ###### interface
 
   options = {
     services.odr.dabmux = {
-        enable = mkEnableOption "Opendigital Radio DAB multiplexer";
+      enable = mkEnableOption "Opendigital Radio DAB multiplexer";
 
-        dabmode = mkOption {
-          type = types.ints.between 1 4;
-          default = 1;
-          description = "DAB transmission mode (2-4 are outdated).";
+      settings = {
+        # Required sections
+        general = mkOption {
+          default = {};
+          type = types.submodule {
+            freeformType = formatter.type;
+            options = {
+              dabmode = mkOption {
+                type = types.ints.between 1 4;
+                default = 1;
+                description = "DAB transmission mode (2-4 are outdated).";
+              };
+
+              nbframes = mkOption {
+                type = types.int;
+                default = 0;
+                description = "Number of frames to generate.";
+              };
+            };
+          };
         };
 
-        nbframes = mkOption {
-          type = types.int;
-          default = 0;
-          description = "Number of frames to generate.";
+        remotecontrol = mkOption {
+          default = {};
+          type = types.submodule {
+            freeformType = formatter.type;
+          };
         };
 
-        extraConfigGeneral = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra config for the 'general' section";
-        };
+        ensemble = mkOption {
+          default = {};
+          type = types.submodule {
+            freeformType = formatter.type;
+            options = {
+              ecc = mkOption {
+                type = types.strMatching "0x[0-9a-fA-F]{2}";
+                default = "0x00";
+                description = "Extended Country Code";
+              };
 
-        ecc = mkOption {
-          type = types.strMatching "0x[0-9a-fA-F]{2}";
-          default = "0x00";
-          description = "Extended Country Code";
-        };
+              id = mkOption {
+                type = types.strMatching "0x[0-9a-fA-F]{4}";
+                default = "0x0000";
+                description = "Ensemble ID";
+              };
 
-        id = mkOption {
-          type = types.strMatching "0x[0-9a-fA-F]{4}";
-          default = "0x0000";
-          description = "Ensemble ID";
-        };
-
-        label = mkOption {
-          type = types.str;
-          default = "NixOS ODR";
-          description = "Name of the ensemble.";
-        };
-
-        extraConfigEnsemble = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra config for the 'ensemble' section";
+              label = mkOption {
+                type = types.str;
+                default = "NixOS ODR";
+                description = "Name of the ensemble.";
+              };
+            };
+          };
         };
 
         outputs = mkOption {
-          type = types.listOf types.str;
-          default = [ "throttle \"simul://\"" "tcp \"tcp://*:9030\"" ];
-          description = "Output definitions.";
-        };
-
-        extraConfigOutputs = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra Output definitions.";
-        };
-
-        extraConfig = mkOption {
-          type = types.str;
-          default = "";
-          description = "Extra contents of config file.";
-        };
-
-        streams = mkOption {
-          default = {};
-          description = ''
-            Simplified setup for Services/subchannels/components.
-            Every entry creates one service, one sub channel, and component
-          '';
-
-        type = types.attrsOf (types.submodule ({ config, ... }: {
-          options = {
-            serviceId = mkOption {
-              type = types.strMatching "0x[0-9a-fA-F]{4}";
-              description = "Service ID";
-            };
-
-            label = mkOption {
-              type = types.str;
-              description = "Label of the service.";
-            };
-
-            inputuri = mkOption {
-              type = types.str;
-              description = "Input file name for URL.";
-            };
-
-            slideShow = mkOption {
-              type = types.bool;
-              default = false;
-              description = "Set figtype to 0x2 (MOT Slideshow)";
-            };
-
-            bitrate = mkOption {
-              type = types.ints.between 16 192;
-              default = 96;
-              description = "Audio bitrate of the channel.";
-            };
-
-            zmq-buffer = mkOption {
-              type = types.int;
-              default = 10;
-              description = "Maximum buffer size in frames (24 ms per frame).";
-            };
-
-            zmq-prebuffering = mkOption {
-              type = types.int;
-              default = 5;
-              description = "Number of frames in buffer before streaming starts.";
-            };
-
-            protection = mkOption {
-              type = types.ints.between 1 4;
-              default = 3;
-              description = "EEP protection class.";
-            };
-
-            channelType = mkOption {
-              type = types.enum [ "audio" "dabplus" ];
-              default = "dabplus";
-              description = "Content type of the channel.";
-            };
-
-            extraConfigService = mkOption {
-              type = types.str;
-              default = "";
-              description = "Extra contents of service definition.";
-            };
-
-            extraConfigSubchannel = mkOption {
-              type = types.str;
-              default = "";
-              description = "Extra contents of sub channel definition.";
-            };
-
-            extraConfigComponent = mkOption {
-              type = types.str;
-              default = "";
-              description = "Extra contents of component definition.";
-            };
+          type = types.submodule {
+            freeformType = formatter.type;
           };
-        }));
+        };
+
+        services = mkOption {
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+            options = {
+              id = mkOption {
+                type = types.strMatching "0x[0-9a-fA-F]{4}";
+                default = null;
+                description = "Service ID";
+              };
+
+              label = mkOption {
+                type = types.str;
+                default = null;
+                description = "Service label";
+              };
+
+            };
+          });
+        };
+
+        subchannels = mkOption {
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+            options = {
+              type = mkOption {
+                default = "dabplus";
+                type = types.enum [
+                  "audio"
+                  "dabplus"
+                  "data"
+                  "packet"
+                  "enhancedpacket"
+                ];
+              };
+
+              bitrate = mkOption {
+                type = types.ints.between 16 192;
+                default = 96;
+                description = "Bitrate of the channel.";
+              };
+
+              protection = mkOption {
+                type = types.ints.between 1 4;
+                default = 3;
+                description = "EEP protection class.";
+              };
+
+              id = mkOption {
+                type = types.ints.u8;
+                description = "Subchannel id.";
+                default = null;
+              };
+
+              inputuri = mkOption {
+                type = types.str;
+              };
+
+              inputproto = mkOption {
+                type = types.str;
+              };
+            };
+          });
+        };
+
+        components = mkOption {
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+          });
+        };
       };
     };
   };
 
   ###### implementation
 
-  config = {
-    systemd.services.odr-dabmux = mkIf (config.services.odr.enable && cfg.enable) {
+  config = mkIf cfg.enable {
+    systemd.services.odr-dabmux = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       requires = [ "network.target" ];
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.odrDabMux}/bin/odr-dabmux ${configMux}";
+        ExecStart = "${pkgs.odrDabMux}/bin/odr-dabmux ${formatter.generate "mux.cfg" cfg.settings}";
         CPUSchedulingPolicy = "rr";
         CPUSchedulingPriority = 50;
-        User = "odruser";
-        Group = "odrgroup";
+        DynamicUser = true;
         Restart = "always";
         RestartSec = "5s";
       };
