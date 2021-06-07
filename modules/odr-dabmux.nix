@@ -14,7 +14,7 @@ let
   valueToString = key: val:
     if isList val then concatStringsSep "," (map (x: valueToString x) val)
     else if isAttrs val then "${key} {\n${attrsToString val}\n}"
-    else if isBool val then (if val then "true" else "false")
+    else if isBool val then "${key} ${if val then "true" else "false"}"
     else "${key} ${toString val}";
 
   formatter = {
@@ -155,19 +155,32 @@ in {
                 description = "Subchannel id.";
                 default = null;
               };
-
-              inputuri = mkOption {
-                type = types.str;
-              };
-
-              inputproto = mkOption {
-                type = types.str;
-              };
             };
           });
         };
 
         components = mkOption {
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+          });
+        };
+
+        linking = mkOption {
+          default = {};
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+          });
+        };
+
+        frequency_information = mkOption {
+          default = {};
+          type = types.attrsOf (types.submodule {
+            freeformType = formatter.type;
+          });
+        };
+
+        other-services = mkOption {
+          default = {};
           type = types.attrsOf (types.submodule {
             freeformType = formatter.type;
           });

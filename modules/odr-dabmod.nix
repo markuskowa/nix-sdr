@@ -56,7 +56,7 @@ in {
 
   ###### implementation
 
-  config = {
+  config = mkIf cfg.enable {
 
     # run as user (requires hardware access)
     users.users."${usergroup}" = mkIf cfg.enable {

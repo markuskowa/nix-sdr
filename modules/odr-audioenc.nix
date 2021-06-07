@@ -29,10 +29,10 @@ let
           ${cfg.input} \
           -b ${toString cfg.bitrate} \
           ${optionalString cfg.pad.enable ("-P ${socketid} -p ${toString cfg.padBytes}")} \
-          -o ${cfg.output} \
           ${cfg.cmdlineOptions}
       '';
       PermissionsStartOnly = "true";
+      RuntimeDirectory = "odr-audio-${name}";
       User = "odruser";
       Group = "odrgroup";
       Restart = "always";
@@ -63,6 +63,7 @@ let
         ${concatMapStrings (dir: "-t ${dir} ") cfg.pad.dlsFiles} \
         ${cfg.pad.cmdlineOptions}
       '';
+      RuntimeDirectory = "odr-pad-${name}";
       User = "odruser";
       Group = "odrgroup";
     };
@@ -142,7 +143,7 @@ in
 
   ###### implementation
 
-  config = mkIf config.services.odr.enable {
+  config = {
 
     # Create audio encoder services
     systemd.services = (mapAttrs' ( name: cfg:
