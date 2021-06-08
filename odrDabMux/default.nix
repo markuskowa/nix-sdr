@@ -1,9 +1,11 @@
 { stdenv, fetchFromGitHub, autoconf, automake, libtool
-, zeromq, boost, curl
+, zeromq, boost, curl, python3
 } :
 
 let
   version = "4.0.0";
+
+  python = python3.withPackages (ps: with ps; [ pyzmq ]);
 
 in stdenv.mkDerivation {
   name = "odrDabMux-${version}";
@@ -16,7 +18,7 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
-  buildInputs = [ zeromq boost curl ];
+  buildInputs = [ zeromq boost curl python ];
 
   configureFlags = [
      "--with-boost-system=boost_system"
@@ -29,6 +31,8 @@ in stdenv.mkDerivation {
   postInstall = ''
     mkdir -p $out/share/man/man1
     mkdir -p $out/share/doc/odrDabMux
+
+    install -m755 doc/show_dabmux_stats.py $out/bin
 
     cp doc/DabMux.1 $out/share/man/man1
     cp doc/* $out/share/doc/odrDabMux
