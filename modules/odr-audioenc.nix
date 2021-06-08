@@ -5,6 +5,8 @@ with lib;
 let
   cfg = config.services.odr.audioenc;
 
+  usergroup = "odrenc";
+
   ###### Service modules
 
   #
@@ -14,7 +16,6 @@ let
   let
     socketid = "odr-${name}.pad";
   in {
-    enable = true;
     path = with pkgs; [ coreutils ];
 
     wantedBy = [ "multi-user.target" ];
@@ -28,13 +29,17 @@ let
         ${pkgs.odrAudioEnc}/bin/odr-audioenc \
           ${cfg.input} \
           -b ${toString cfg.bitrate} \
-          ${optionalString cfg.pad.enable ("-P ${socketid} -p ${toString cfg.padBytes}")} \
+          ${optionalString cfg.pad.enable (
+            "-P ${socketid} -p ${toString cfg.padBytes}"
+          )} \
+          ${if cfg.outputType == "edi" then "-e" else "-o"} ${cfg.output} \
+          -g ${toString cfg.gain} \
           ${cfg.cmdlineOptions}
       '';
       PermissionsStartOnly = "true";
       RuntimeDirectory = "odr-audio-${name}";
-      User = "odruser";
-      Group = "odrgroup";
+      User = usergroup;
+      Group = usergroup;
       Restart = "always";
       RestartSec = "5s";
     };
@@ -64,13 +69,12 @@ let
         ${cfg.pad.cmdlineOptions}
       '';
       RuntimeDirectory = "odr-pad-${name}";
-      User = "odruser";
-      Group = "odrgroup";
+      User = usergroup;
+      Group = usergroup;
     };
   };
 
-in
-{
+in {
   ###### interface
 
   options = {
@@ -87,7 +91,7 @@ in
             bitrate = mkOption {
               type = types.int;
               default = 96;
-              description = "Audio bit rate in kbit/s." ;
+              description = "Channel bit rate in kbit/s." ;
             };
 
             padBytes = mkOption {
@@ -102,10 +106,23 @@ in
               description = "Input specification.";
             };
 
+            outputType = mkOption {
+              type = types.enum [ "eti" "edi" ];
+              default = "edi";
+              description = "ETI output to file, zmq, stdout (-o) or EDI (-e)";
+            };
+
             output = mkOption {
               type = types.str;
               default = null;
-              description = "Output specification.";
+              description = "Output URI.";
+              example = "tcp://localhost:9001";
+            };
+
+            gain = mkOption {
+              type = types.int;
+              default = 0;
+              description = "Gain in dB,";
             };
 
             cmdlineOptions = mkOption {
@@ -132,7 +149,7 @@ in
               cmdlineOptions = mkOption {
                 default = "";
                 type = types.str;
-                description = "Command line options for odr-audioenc.";
+                description = "Command line options for odr-padenc.";
               };
             };
 
@@ -143,18 +160,32 @@ in
 
   ###### implementation
 
-  config = {
+  config = let
+    enabled = foldr (l: r: l || r) false (
+      mapAttrsToList (n: v: v.enable) cfg
+    );
+
+  in mkIf enabled {
 
     # Create audio encoder services
-    systemd.services = (mapAttrs' ( name: cfg:
+    systemd.services = (mapAttrs' ( name: c:
       nameValuePair "odr-audioenc-${name}" (
-        mkIf cfg.enable (audioEncService name cfg)
+        mkIf c.enable (audioEncService name c)
       )
-    ) cfg) // mapAttrs' ( name: cfg:
+    ) cfg) // mapAttrs' ( name: c:
       nameValuePair "odr-padenc-${name}" (
-        mkIf cfg.pad.enable (padEncService name cfg)
+        mkIf c.pad.enable (padEncService name c)
       )
-    ) cfg;
+      ) cfg;
+
+    # user/group for all encoders
+    users.users.${usergroup} = {
+      description = "ODR audio/pad encoder daemon user";
+      isSystemUser = true;
+      group = usergroup;
+    };
+
+    users.groups.${usergroup} = {};
   };
 }
 
