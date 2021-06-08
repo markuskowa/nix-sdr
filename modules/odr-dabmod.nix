@@ -59,7 +59,7 @@ in {
   config = mkIf cfg.enable {
 
     # run as user (requires hardware access)
-    users.users."${usergroup}" = mkIf cfg.enable {
+    users.users."${usergroup}" = {
       description   = "ODR DAB MUX daemon user";
       isSystemUser  = true;
       group         = usergroup;
