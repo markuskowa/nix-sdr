@@ -42,6 +42,70 @@ in {
     services.odr.dabmux = {
       enable = mkEnableOption "Opendigital Radio DAB multiplexer";
 
+      streams = mkOption {
+        default = {};
+        description = ''
+          Simplified setup for Services/subchannels/components.
+          Every entry creates one service, one sub channel, and component
+        '';
+
+        type = types.attrsOf (types.submodule ({ config, ... }: {
+          options = {
+            serviceId = mkOption {
+              type = types.str;
+              description = "Service ID";
+            };
+
+            channelId = mkOption {
+              type = types.int;
+              description = "Channel ID";
+            };
+
+            label = mkOption {
+              type = with types; nullOr str;
+              default = null;
+              description = "Label of the service. Defaults to stream name.";
+            };
+
+            inputuri = mkOption {
+              type = types.str;
+              description = "URI of channel input";
+            };
+
+            inputproto = mkOption {
+              type = types.str;
+              description = "Input protocol";
+              default = "edi";
+            };
+
+            slideShow = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Set figtype to 0x2 (MOT Slideshow)";
+            };
+
+            bitrate = mkOption {
+              type = types.ints.between 16 192;
+              default = 96;
+              description = "Audio bitrate of the channel.";
+            };
+
+            protection = mkOption {
+              type = types.ints.between 1 4;
+              default = 3;
+              description = "EEP protection class.";
+            };
+
+            channelType = mkOption {
+              type = types.enum [ "audio" "dabplus" ];
+              default = "dabplus";
+              description = "Content type of the channel.";
+            };
+          };
+        }));
+      };
+
+      # Freefrom config
       settings = {
         # Required sections
         general = mkOption {
@@ -207,6 +271,29 @@ in {
         RestartSec = "5s";
       };
     };
+
+    services.odr.dabmux.settings.services = mapAttrs' (stream: c:
+      nameValuePair "svc-${stream}" {
+        id = mkDefault c.serviceId;
+        label = mkDefault (if c.label != null then c.label else stream);
+      }) cfg.streams;
+
+    services.odr.dabmux.settings.subchannels = mapAttrs' (stream: c:
+      nameValuePair "sub-${stream}" {
+        type = mkDefault c.channelType;
+        id = mkDefault c.channelId;
+        inputproto = mkDefault c.inputproto;
+        inputuri = mkDefault c.inputuri;
+        bitrate = mkDefault c.bitrate;
+        protection = mkDefault c.protection;
+      }) cfg.streams;
+
+    services.odr.dabmux.settings.components = mapAttrs' (stream: c:
+      nameValuePair "comp-${stream}" {
+        service = mkDefault "svc-${stream}";
+        subchannel = mkDefault "sub-${stream}";
+        user-applications.userapp = mkIf c.slideShow (mkDefault "slideshow");
+      }) cfg.streams;
   };
 }
 

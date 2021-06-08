@@ -5,7 +5,6 @@ let
     imports = [ ../modules/odr.nix ];
 
     nixpkgs.overlays = [ (import ../default.nix) ];
-    services.odr.enable = true;
     networking.firewall.enable = false;
   };
 
@@ -41,6 +40,14 @@ in {
       imports = [ defconf ];
       services.odr.dabmux = {
         enable = true;
+        streams.test = {
+          serviceId = "0x0001";
+          channelId = 1;
+          bitrate = 128;
+          inputuri = "tcp://*:9000";
+          inputproto = "edi";
+        };
+
         settings = {
           outputs = {
             throttle = "simul://";
@@ -50,23 +57,23 @@ in {
             };
           };
 
-          services.test = {
-            id = "0x0001";
-            label = "Test";
-          };
+          #services.test = {
+          #  id = "0x0001";
+          #  label = "Test";
+          #};
 
-          subchannels.test = {
-            type = "dabplus";
-            id = 1;
-            bitrate = 128;
-            inputuri = "tcp://*:9000";
-            inputproto = "edi";
-          };
+          #subchannels.test = {
+          #  type = "dabplus";
+          #  id = 1;
+          #  bitrate = 128;
+          #  inputuri = "tcp://*:9000";
+          #  inputproto = "edi";
+          #};
 
-          components.test = {
-            service = "test";
-            subchannel = "test";
-          };
+          #components.test = {
+          #  service = "test";
+          #  subchannel = "test";
+          #};
         };
       };
     };
