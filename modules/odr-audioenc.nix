@@ -29,11 +29,14 @@ let
         ${pkgs.odrAudioEnc}/bin/odr-audioenc \
           ${cfg.input} \
           -b ${toString cfg.bitrate} \
+          -r ${toString cfg.rate} \
+          -c ${toString cfg.channels} \
           ${optionalString cfg.pad.enable (
             "-P ${socketid} -p ${toString cfg.padBytes}"
           )} \
+          --identifier=${if cfg.identifier == null then name else cfg.identifier} \
           ${if cfg.outputType == "edi" then "-e" else "-o"} ${cfg.output} \
-          -g ${toString cfg.gain} \
+          -g '${toString cfg.gain}' \
           ${cfg.cmdlineOptions}
       '';
       PermissionsStartOnly = "true";
@@ -89,9 +92,27 @@ in {
             enable = mkEnableOption "audio encoder";
 
             bitrate = mkOption {
-              type = types.int;
+              type = types.ints.between 16 192;
               default = 96;
               description = "Channel bit rate in kbit/s." ;
+            };
+
+            channels = mkOption {
+              type = types.enum [ 1 2 ];
+              default = 2;
+              description = "Number of audio channels." ;
+            };
+
+            rate = mkOption {
+              type = types.enum [ 32000 48000 ];
+              default = 48000;
+              description = "Sample rate." ;
+            };
+
+            identifier = mkOption {
+              type = with types; nullOr str;
+              default = null;
+              description = "EDI identifier tag." ;
             };
 
             padBytes = mkOption {
