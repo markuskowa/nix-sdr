@@ -1,6 +1,7 @@
 self: super:
 
 with super;
+
 {
 
   airspyAdsb = callPackage ./airspy_adsb {};
@@ -20,6 +21,8 @@ with super;
   libfec = callPackage ./libfec {};
 
   kerberossdr = callPackage ./kerberossdr {};
+
+  nexus433 = callPackage ./nexus433 {};
 
   odrAudioEnc = callPackage ./odrAudioEnc {};
 
