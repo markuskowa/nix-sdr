@@ -1,5 +1,5 @@
-{ stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkg-config, zeromq, alsaLib, vlc, curl
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
+, pkg-config, zeromq, alsa-lib, vlc, curl
 } :
 
 let
@@ -17,7 +17,7 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkg-config ];
-  buildInputs = [ zeromq alsaLib vlc curl ];
+  buildInputs = [ zeromq alsa-lib vlc curl ];
 
   configureFlags = [
     "--enable-vlc"
@@ -33,7 +33,7 @@ in stdenv.mkDerivation {
     ./bootstrap
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "DAB/DAB+ audio encoder";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = with licenses; [ asl20 lgpl21 ];

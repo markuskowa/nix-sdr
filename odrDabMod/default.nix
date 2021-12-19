@@ -1,5 +1,5 @@
-{ stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, zeromq, fftwFloat, uhd, boost, soapysdr-with-plugins
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
+, pkg-config, zeromq, fftwFloat, uhd, boost, soapysdr-with-plugins
 } :
 
 let
@@ -16,7 +16,7 @@ in stdenv.mkDerivation {
     sha256 = "1ijqgpyp4afjj5w1nwyzwkvllhijy5nipaf3zhj76h9ck9qzb419";
   };
 
-  nativeBuildInputs = [ autoconf automake libtool pkgconfig boost ];
+  nativeBuildInputs = [ autoconf automake libtool pkg-config boost ];
   buildInputs = [ zeromq fftwFloat uhd boost soapysdr-with-plugins ];
 
   CFLAGS="-O3 -DNDEBUG";
@@ -40,7 +40,7 @@ in stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "DAB/DAB+ modulator";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = licenses.gpl3;

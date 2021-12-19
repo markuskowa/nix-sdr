@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, autoconf, automake, libtool
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
 , zeromq, boost, curl, python3
 } :
 
@@ -40,7 +40,7 @@ in stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "DAB/DAB+ multiplexer";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = licenses.gpl3;

@@ -215,7 +215,7 @@ in {
               };
 
               id = mkOption {
-                type = types.ints.u8;
+                type = types.ints.between 0 63;
                 description = "Subchannel id.";
                 default = null;
               };

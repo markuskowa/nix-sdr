@@ -1,5 +1,5 @@
-{ stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, imagemagick
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
+, pkg-config, imagemagick
 } :
 
 let
@@ -15,7 +15,7 @@ in stdenv.mkDerivation {
     sha256 = "1m5ak9akpkqhivw1mnhcg3l4hnxg5fap3hncbvwg1k1rqxly9byr";
   };
 
-  nativeBuildInputs = [ autoconf automake libtool pkgconfig ];
+  nativeBuildInputs = [ autoconf automake libtool pkg-config ];
   buildInputs = [ imagemagick ];
 
   preConfigure = ''
@@ -24,7 +24,7 @@ in stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "DAB/DAB+ PAD encode";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = licenses.gpl3;
