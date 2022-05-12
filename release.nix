@@ -2,8 +2,13 @@
 
 with pkgs;
 
-rec {
-  odrAudioEnc = odrAudioEnc;
-  fdk-aac = fdk-aac;
-  rtl-sdr-kerberos = rtl-sdr-kerberos;
+{
+  inherit (pkgs)
+  odrAudioEnc
+  odrDabMux
+  odrDabMux_gui
+  odrDabMod
+  odrPadEnc
+  fdk-aac
+  rtl-sdr-kerberos;
 }
