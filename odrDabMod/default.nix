@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "2.4.2";
+  version = "2.6.0";
 
 in stdenv.mkDerivation {
   pname = "odrDabMod";
@@ -13,7 +13,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMod";
     rev = "v${version}";
-    sha256 = "1ijqgpyp4afjj5w1nwyzwkvllhijy5nipaf3zhj76h9ck9qzb419";
+    sha256 = "sha256-zcp3DHRMUHZF414cndiE9DLzGlnwIgv4+56ughml0VU=";
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkg-config boost ];
