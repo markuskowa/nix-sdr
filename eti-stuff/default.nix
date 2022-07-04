@@ -1,11 +1,11 @@
-{ stdenv, fetchFromGitHub, cmake, pkg-config
+{ stdenv, lib, fetchFromGitHub, cmake, pkg-config
 , fftwFloat, libsndfile, libsamplerate
 , rtl-sdr, airspy, libusb1
 , device ? "rtl-sdr"
 } :
 
 let
-  version = "20200512";
+  version = "20220621";
 
 in stdenv.mkDerivation {
   name = "eti-stuff-${version}";
@@ -13,8 +13,8 @@ in stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "JvanKatwijk";
     repo = "eti-stuff";
-    rev = "770485ca1a6ba477344c049b8a3fe4b8564a69bd";
-    sha256 = "1qdpb11s6pj40a6nzsnkdyy9m8iisjw01ncbzrhrp290j28v1pwb";
+    rev = "812095bbd7627d30359476d022ed1cae2a6b0efb";
+    sha256 = "sha256-wCJnYOnb1BwnoEZ1YdFC4YYTCyoj8SYTAbxp14F/Vg0=";
   };
 
   preConfigure = ''
@@ -38,7 +38,7 @@ in stdenv.mkDerivation {
     mv $out/eti-* $out/bin
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "";
     homepage = "https://";
     license = licenses.gpl2;
