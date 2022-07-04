@@ -9,6 +9,7 @@ let
 
 in stdenv.mkDerivation {
   name = "odrDabMux-${version}";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "Opendigitalradio";

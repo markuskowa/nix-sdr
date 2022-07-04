@@ -1,5 +1,5 @@
 { lib, stdenv, fetchFromGitHub, autoconf, automake, libtool
-, pkgconfig, zeromq, boost, curl, python3
+, pkgconfig, zeromq, boost, curl, python3, odrDabMux
 } :
 
 let
@@ -7,14 +7,9 @@ let
   python = python3.withPackages (ps: with ps; [ pyzmq cherrypy jinja2 ]);
 
 in stdenv.mkDerivation {
-  name = "odrDabMux-gui-${version}";
+  name = "odrDabMux-gui";
+  inherit (odrDabMux) src version;
 
-  src = fetchFromGitHub {
-    owner = "Opendigitalradio";
-    repo = "ODR-DabMux";
-    rev = "v${version}";
-    sha256 = "0293qgjh6qfwi24map106079fp9c77bgr0z9hlhrsjxsn4addx1n";
-  };
 
   nativeBuildInputs = [ autoconf automake libtool ];
   buildInputs = [ python ];
