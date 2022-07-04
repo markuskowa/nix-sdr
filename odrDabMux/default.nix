@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "4.1.0";
+  version = "4.2.1";
 
   python = python3.withPackages (ps: with ps; [ pyzmq ]);
 
@@ -14,7 +14,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMux";
     rev = "v${version}";
-    sha256 = "0293qgjh6qfwi24map106079fp9c77bgr0z9hlhrsjxsn4addx1n";
+    sha256 = "sha256-0hQ1czgYNBGQPwCF3WTTiwAxghn6M1h/MZisrsnIOU0=";
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
@@ -34,7 +34,6 @@ in stdenv.mkDerivation {
 
     install -m755 doc/show_dabmux_stats.py $out/bin
 
-    cp doc/DabMux.1 $out/share/man/man1
     cp doc/* $out/share/doc/odrDabMux
   '';
 
@@ -44,7 +43,7 @@ in stdenv.mkDerivation {
     description = "DAB/DAB+ multiplexer";
     homepage = http://www.opendigitalradio.org/mmbtools;
     license = licenses.gpl3;
-    maintainers = maintainers.markuskowa;
+    maintainers = [ maintainers.markuskowa ];
     platforms = platforms.linux;
   };
 }
