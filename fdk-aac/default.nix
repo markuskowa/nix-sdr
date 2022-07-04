@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, autoconf, automake, libtool
+{ stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
 } :
 
 let
@@ -21,7 +21,7 @@ in stdenv.mkDerivation {
     ./autogen.sh
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Fraunhofer AAC+ library with DAB+ support";
     homepage = https://github.com/Opendigitalradio/fdk-aac;
     #license = licenses.Fraunhofer;
