@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation {
   pname = "waveplus-reader";
-  version = "20201204-mk";
+  version = "20210722-mk";
 
   src = fetchFromGitHub {
     owner = "markuskowa";
     repo = "waveplus-reader";
-    rev = "ba86e2ab857d0b673150adaf03c6c0162d8a3383";
-    sha256 = "13835k8i6kyfkz3zcbci1irkbq236aqpyy2caa7n7rwnxdhbw45s";
+    rev = "e2eb096efb0da543cc9de723d172356e5c1b4e84";
+    sha256 = "sha256-d+uqzbMMPh7Ydd2ZAKmzN5k2EgWserqntZ/Nh844DyQ=";
   };
 
   buildInputs = [ (python2.withPackages (ps: [ ps.bluepy ])) ];
