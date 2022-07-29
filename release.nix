@@ -10,5 +10,6 @@ with pkgs;
   odrDabMod
   odrPadEnc
   fdk-aac
-  rtl-sdr-kerberos;
+  rtl-sdr-kerberos
+  srsran;
 }

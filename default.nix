@@ -38,6 +38,8 @@ with super;
 
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
 
+  srsran = callPackage ./srsran {};
+
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
 
   rtptools = callPackage ./rtptools {};
