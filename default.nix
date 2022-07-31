@@ -38,6 +38,24 @@ with super;
 
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
 
+  libosmo-abis = callPackage ./libosmo-abis {};
+
+  libosmo-netif = callPackage ./libosmo-netif {};
+
+  libosmo-sccp = callPackage ./libosmo-sccp {};
+
+  osmo-hlr = callPackage ./osmo-hlr {};
+
+  osmo-msc = callPackage ./osmo-msc {};
+
+  osmo-mgw = callPackage ./osmo-mgw {};
+
+  osmo-bsc = callPackage ./osmo-bsc {};
+
+  osmo-bts = callPackage ./osmo-bts {};
+
+  osmo-trx = callPackage ./osmo-trx {};
+
   srsran = callPackage ./srsran {};
 
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
