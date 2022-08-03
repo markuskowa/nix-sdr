@@ -28,4 +28,10 @@ stdenv.mkDerivation rec {
     talloc
     sqlite
   ];
+
+  meta = with lib; {
+    description = "GSM Home Location Register";
+    homepage = "https://osmocom.org/projects/osmo-hlr/wiki/OsmoHLR";
+    license = licenses.agpl3Only;
+  };
 }

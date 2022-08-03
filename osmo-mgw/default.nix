@@ -1,6 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore, libosmo-abis, libosmo-netif, libosmo-sccp
-, sqlite
+, libosmocore, libosmo-abis, libosmo-netif
 }:
 
 
@@ -27,8 +26,11 @@ stdenv.mkDerivation rec {
     libosmocore
     libosmo-abis
     libosmo-netif
-    # libosmo-sccp
-#    talloc
-    # sqlite
   ];
+
+  meta = with lib; {
+    description = "Media Gateway for handling user plane (voice) traffic in cellular networks";
+    homepage = "https://osmocom.org/projects/osmo-mgw/wiki";
+    license = licenses.agpl3Only;
+  };
 }

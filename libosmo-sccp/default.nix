@@ -1,6 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore, libosmo-netif, sqlite
-, lksctp-tools
+, libosmocore, libosmo-netif, lksctp-tools
 }:
 
 
@@ -27,8 +26,11 @@ stdenv.mkDerivation rec {
     libosmocore
     libosmo-netif
     lksctp-tools
-    # libosmo-abis
-    # talloc
-    # sqlite
   ];
+
+  meta = with lib; {
+    description = "Implementation of telecom signaling protocols and OsmoSTP";
+    homepage = "https://osmocom.org/projects/osmo-stp/wiki";
+    license = licenses.agpl3Only;
+  };
 }

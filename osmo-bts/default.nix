@@ -1,6 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, libosmocore, libosmo-abis, libosmo-netif, libosmo-sccp
-, osmo-mgw, sqlite
+, libosmocore, libosmo-abis
 }:
 
 
@@ -28,9 +27,11 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libosmocore
     libosmo-abis
-    # libosmo-netif
-    # libosmo-sccp
-    # osmo-mgw
-    # sqlite
   ];
+
+  meta = with lib; {
+    description = "GSM Base Transceiver Station";
+    homepage = "https://osmocom.org/projects/osmobts/wiki";
+    license = licenses.agpl3Only;
+  };
 }

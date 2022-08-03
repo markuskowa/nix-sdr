@@ -1,6 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore, libosmo-abis, sqlite
-, lksctp-tools
+, libosmocore, lksctp-tools
 }:
 
 
@@ -26,8 +25,11 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libosmocore
     lksctp-tools
-    # libosmo-abis
-    # talloc
-    # sqlite
   ];
+
+  meta = with lib; {
+    description = "Higher-layer cellular communications protocol implementation";
+    homepage = "https://gitea.osmocom.org/osmocom/libosmo-netif";
+    license = licenses.agpl3Only;
+  };
 }

@@ -1,5 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore, ortp, bctoolbox
+, libosmocore, ortp, bctoolbox
 }:
 
 
@@ -28,6 +28,11 @@ stdenv.mkDerivation rec {
     libosmocore
     ortp
     bctoolbox
-#    talloc
   ];
+
+  meta = with lib; {
+    description = "A-bis interface library";
+    homepage = "https://osmocom.org/projects/libosmo-abis";
+    license = licenses.agpl3Only;
+  };
 }

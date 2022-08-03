@@ -27,4 +27,10 @@ stdenv.mkDerivation rec {
     osmo-mgw
     sqlite
   ];
+
+  meta = with lib; {
+    description = "GSM Base Station Controller";
+    homepage = "https://osmocom.org/projects/osmobsc/wiki";
+    license = licenses.agpl3Only;
+  };
 }

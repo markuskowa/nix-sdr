@@ -30,4 +30,10 @@ stdenv.mkDerivation rec {
     lksctp-tools
     sqlite
   ];
+
+  meta = with lib; {
+    description = "GSM Mobile Switching Centre (MSC) for 2G (GSM) and 3G (UMTS)";
+    homepage = "https://osmocom.org/projects/osmomsc/wiki";
+    license = licenses.agpl3Only;
+  };
 }

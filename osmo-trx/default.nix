@@ -30,4 +30,10 @@ stdenv.mkDerivation rec {
     limesuite
     fftwFloat
   ];
+
+  meta = with lib; {
+    description = "SDR transceiver that implements the Layer 1 physical layer of a BTS";
+    homepage = "https://osmocom.org/projects/osmotrx/wiki/OsmoTRX";
+    license = licenses.agpl3Only;
+  };
 }
