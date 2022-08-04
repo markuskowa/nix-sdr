@@ -1,14 +1,14 @@
-{ lib, stdenv, fetchFromGitHub, autoconf, automake, libtool }:
+{ lib, stdenv, fetchFromGitHub, autoconf, automake, libtool, zeromq }:
 
 stdenv.mkDerivation rec {
   pname = "odr-edi2edi";
-  version = "0.3.0";
+  version = "0.4.0";
 
   src = fetchFromGitHub {
     owner = "Opendigitalradio";
     repo = pname;
     rev = "v${version}";
-    sha256 = "02j9bkabvch6jdmxaiyj17gpd07gjcarix2hpw0apglv7zk7z56n";
+    sha256 = "sha256-CU/Bu/P3o1c8qccDAvESeG+sDoCVZOsOWRrzc7FGif8=";
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
@@ -17,12 +17,14 @@ stdenv.mkDerivation rec {
     ./bootstrap.sh
   '';
 
+  buildInputs = [ zeromq ];
+
   enableParallelBuilding = true;
 
   meta = with lib; {
     description = "DAB stream converter";
     homepage = "https://github.com/Opendigitalradio/ODR-EDI2EDI/";
-    license = licenses.mit;
+    license = licenses.gpl3Only;
     maintainers = with maintainers; [ markuskowa ];
   };
 }
