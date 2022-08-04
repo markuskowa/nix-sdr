@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "srsran";
     repo = "srsRAN";
-    rev = "release_22_04";
+    rev = "release_${lib.replaceChars ["."] ["_"] version}";
     sha256 = "sha256-FC6RopxEgZdMTyWvbn7Bwom93hWuDD8lEhqC/GuxhAw=";
   };
 
@@ -28,6 +28,6 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "4G/5G software radio suite";
     homepage = "https://docs.srsran.com/en/latest/";
-    license = with licenses; [ lpg21Only mit bsd3 agpl3Plus ];
+    license = with licenses; [ lgpl21Only mit bsd3 agpl3Plus ];
   };
 }
