@@ -24,4 +24,10 @@ stdenv.mkDerivation rec {
     soapysdr-with-plugins
     zeromq
   ];
+
+  meta = with lib; {
+    description = "4G/5G software radio suite";
+    homepage = "https://docs.srsran.com/en/latest/";
+    license = with licenses; [ lpg21Only mit bsd3 agpl3Plus ];
+  };
 }
