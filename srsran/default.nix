@@ -15,6 +15,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake pkg-config ];
 
+  cmakeFlags = [ "-DUSE_LTE_RATES=ON" ];
+
   buildInputs = [
     fftwFloat
     boost
