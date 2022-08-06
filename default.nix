@@ -44,6 +44,10 @@ with super;
 
   libosmo-sccp = callPackage ./libosmo-sccp {};
 
+  libulfius = callPackage ./libulfius {};
+
+  osmo-cbc = callPackage ./osmo-cbc {};
+
   osmo-hlr = callPackage ./osmo-hlr {};
 
   osmo-msc = callPackage ./osmo-msc {};

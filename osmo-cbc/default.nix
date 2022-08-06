@@ -1,6 +1,6 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
 , talloc, libosmocore, libosmo-abis, libosmo-netif
-, libulfius, sqlite
+, libulfius, sqlite, jansson, gnutls, zlib, libmicrohttpd
 }:
 
 
@@ -28,7 +28,9 @@ stdenv.mkDerivation rec {
     libosmo-abis
     libosmo-netif
     libulfius
-    # talloc
-    # sqlite
+    jansson
+    zlib
+    libmicrohttpd
+    gnutls
   ];
 }
