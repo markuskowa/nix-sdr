@@ -33,4 +33,10 @@ stdenv.mkDerivation rec {
     libmicrohttpd
     gnutls
   ];
+
+  meta = with lib; {
+    description = "Minimal 3GPP Cell Broadcast Centre";
+    homepage = "https://osmocom.org/projects/osmo-cbc/wiki";
+    license = licenses.agpl3Only;
+  };
 }

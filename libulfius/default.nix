@@ -33,8 +33,8 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with lib; {
-    description = "Minimal 3GPP Cell Broadcast Centre";
-    homepage = "https://osmocom.org/projects/osmo-cbc/wiki";
-    license = licenses.agpl3Only;
+    description = "HTTP Framework for REST Applications in C";
+    homepage = "https://github.com/babelouest/ulfius";
+    license = licenses.lgpl21Only;
   };
 }
