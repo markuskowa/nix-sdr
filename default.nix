@@ -62,6 +62,8 @@ with super;
 
   osmo-trx = callPackage ./osmo-trx {};
 
+  osmo-pcu = callPackage ./osmo-pcu {};
+
   srsran = callPackage ./srsran {};
 
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
