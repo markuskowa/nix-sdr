@@ -46,6 +46,8 @@ with super;
 
   libulfius = callPackage ./libulfius {};
 
+  open5gs = callPackage ./open5gs {};
+
   osmo-cbc = callPackage ./osmo-cbc {};
 
   osmo-hlr = callPackage ./osmo-hlr {};
