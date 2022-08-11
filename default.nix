@@ -38,6 +38,8 @@ with super;
 
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
 
+  kamailio = callPackage ./kamailio {};
+
   libosmo-abis = callPackage ./libosmo-abis {};
 
   libosmo-netif = callPackage ./libosmo-netif {};
