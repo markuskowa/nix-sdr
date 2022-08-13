@@ -2,7 +2,10 @@
 
 with lib;
 
-{
+let
+  cfg = config.services.srsran;
+
+in {
   imports = [
     ./srsepc.nix
     ./srsenb.nix
@@ -12,12 +15,6 @@ with lib;
   options.services.srsran = {
     nitb = {
       enable = mkEnableOption "SRSRAN LTE NITB";
-
-      earfcn = mkOption {
-        description = "Frequency code (see https://www.sqimway.com/lte_band.php)";
-        type = types.int;
-        default = 1906; # 1875.6 DL, 1780.6 UL
-      };
     };
 
     mcc = mkOption {
@@ -30,6 +27,18 @@ with lib;
       description = "Mobile Network Code";
       type = types.str;
       default = "01";
+    };
+  };
+
+  config = mkIf cfg.nitb.enable {
+    services.srsran = {
+      epc.enable = true;
+      enodeb.enable = true;
+    };
+
+    networking.nat = {
+      enable = true;
+      internalInterfaces = [ "srs_spgw_sgi" ];
     };
   };
 }

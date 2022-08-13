@@ -41,7 +41,7 @@ in {
       };
 
       rf = {
-        dl_earfcn = mkDefault 1906;
+        dl_earfcn = mkDefault 1906; # 1875.6 DL, 1780.6 UL, see https://www.sqimway.com/lte_band.php
         tx_gain = mkDefault 60;
         rx_gain = mkDefault 40;
 
@@ -62,7 +62,7 @@ in {
     systemd.services.srsran-enodeb = {
       wantedBy = [ "multi-user.target" ];
       requires = [ "network-online.target" ];
-      after = [ "network-online.target" ];
+      after = [ "network-online.target" "srsran-epc.service" ];
 
       serviceConfig = {
         Type = "simple";
