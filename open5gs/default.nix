@@ -59,6 +59,10 @@ in stdenv.mkDerivation rec {
     curl
   ];
 
+  postInstall = ''
+    cp misc/db/open5gs-dbctl $out/bin
+  '';
+
   meta = with lib; {
     description = "4G/5G core network components";
     homepage = "https://open5gs.org/open5gs/docs";

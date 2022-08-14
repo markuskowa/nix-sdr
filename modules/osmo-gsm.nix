@@ -218,18 +218,6 @@ in {
   };
 
   config = mkIf cfg.nitb.enable {
-    # systemd.services.osmo-bsc = {
-    #   wantedBy = [ "multi-user.target" ];
-    #   requires = [ "network-online.target" ];
-    #   after = [ "network-online.target" ];
-    #
-    #   serviceConfig = {
-    #     Type = "simple";
-    #     # ExecStart = "${pkgs."osmo-${name}"}/bin/osmo-${name} -c ${pkgs.writeText "${name}.cfg" settings}";
-    #     ExecStart = "${pkgs.osmo-bsc}/bin/osmo";
-    #   };
-    # };
-
 
     services.osmo =  {
       bsc.enable = true;

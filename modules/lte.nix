@@ -10,6 +10,7 @@ in {
     ./srsepc.nix
     ./srsenb.nix
     ./srsue.nix
+    ./open5gs.nix
   ];
 
   options.services.srsran = {
