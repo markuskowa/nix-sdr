@@ -1,8 +1,12 @@
-{ pkgs ? import <nixpkgs> {} } :
+{ nixpkgs ? <nixpkgs>
+, system ? builtins.currentSystem
+} :
 
-with pkgs;
+let
+  handleTest = t: (import "${nixpkgs}/nixos/tests/make-test-python.nix") (import t);
+  pkgs = (import nixpkgs) { overlays = [ (import ./default.nix) ]; };
 
-{
+in {
   inherit (pkgs)
   odrAudioEnc
   odrDabMux
@@ -11,5 +15,13 @@ with pkgs;
   odrPadEnc
   fdk-aac
   rtl-sdr-kerberos
+  osmo-bsc
   srsran;
+
+  tests = {
+    odr = handleTest ./tests/odr.nix {};
+    srsran = handleTest ./tests/srsran.nix {};
+    srsran-nitb = handleTest ./tests/srsran-nitb.nix {};
+    osmocom = handleTest ./tests/osmocom.nix {};
+  };
 }

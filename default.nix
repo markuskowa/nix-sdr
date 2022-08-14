@@ -58,6 +58,8 @@ with super;
 
   osmo-mgw = callPackage ./osmo-mgw {};
 
+  osmo-stp = self.libosmo-sccp;
+
   osmo-bsc = callPackage ./osmo-bsc {};
 
   osmo-bts = callPackage ./osmo-bts {};

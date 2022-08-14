@@ -1,4 +1,4 @@
-import <nixpkgs/nixos/tests/make-test-python.nix> ({ pkgs, lib, ... } :
+{ pkgs, lib, ... } :
 
 let
   user_db = pkgs.writeText "user_db.csv" ''
@@ -97,4 +97,4 @@ in {
 
     ue.wait_until_succeeds("ping -c1 ${ipSgi}", timeout=300);
   '';
-})
+}
