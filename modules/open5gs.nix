@@ -11,7 +11,7 @@ let
   service = name: settings: mkIf cfg."${name}".enable {
     wantedBy = [ "multi-user.target" ];
     requires = [ "network-online.target" ];
-    after = [ "network-online.target" ];
+    after = [ "network-online.target" "mongodb.service" ];
 
     serviceConfig = {
       Type = "simple";
@@ -29,31 +29,13 @@ let
     };
   };
 
-  genCerts = pkgs.writeScriptBin "genCerts" ''
-    ${pkgs.openssl}/bin/openssl rand -out rnd -hex 256
-
-    mkdir demoCA
-    echo 01 > demoCA/serial
-    touch demoCA/index.txt.attr
-    touch demoCA/index.txt
-
-    # CA self certificate
-    ${pkgs.openssl}/bin/openssl req -new -batch -x509 -days 3650 -nodes -newkey rsa:1024 -out /run/cacert.pem -keyout /run/cakey.pem -subj /CN=${config.networking.hostName}ca/C=KO/ST=Seoul/L=Nowon/O=Open5GS/OU=Tests
-
-    for i in nitb; do
-      ${pkgs.openssl}/bin/openssl genrsa -out /run/$i.key.pem 1024
-      ${pkgs.openssl}/bin/openssl req -new -batch -out /run/$i.csr.pem -key /run/$i.key.pem -subj /CN=${config.networking.hostName}/C=KO/ST=Seoul/L=Nowon/O=Open5GS/OU=Tests
-      ${pkgs.openssl}/bin/openssl ca -cert /run/cacert.pem -days 3650 -keyfile /run/cakey.pem -in /run/$i.csr.pem -out /run/$i.cert.pem -outdir /run -batch
-    done
-  '';
-
   makeDiameter = name: peer: listen: peerIp: pkgs.writeText "${name}.conf" ''
-    Identity = "${config.networking.hostName}";
-    Realm = "localdomain";
+    Identity = "${name}.lte";
+    Realm = "lte";
     ListenOn = "${listen}";
     NoRelay;
-    TLS_Cred = "/run/nitb.cert.pem", "/run/nitb.key.pem";
-    TLS_CA = "/run/cacert.pem";
+    TLS_Cred = "/var/lib/open5gs/${name}.cert.pem", "/var/lib/open5gs/${name}.key.pem";
+    TLS_CA = "/var/lib/open5gs/cacert.pem";
 
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dbg_msg_dumps.fdx" : "0x8888";
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_rfc5777.fdx";
@@ -62,7 +44,7 @@ let
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_nas_mipv6.fdx";
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca.fdx";
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca_3gpp.fdx";
-    ConnectPeer = "${config.networking.hostName}" { ConnectTo = "${peerIp}"; No_TLS; };
+    ConnectPeer = "${peer}.lte" { ConnectTo = "${peerIp}"; };
   '';
 
   services = [
@@ -104,7 +86,7 @@ in {
             mcc = "001";
             mnc = "01";
           };
-          tac = 1;
+          tac = 7;
         };
         security = {
             integrity_order = [ "EIA2" "EIA1" "EIA0" ];
@@ -186,6 +168,7 @@ in {
 
     systemd.services = listToAttrs (map (name: nameValuePair "open5gs-${name}" (service name cfg."${name}".settings)) services);
 
+    # Setup EPC
     services.open5gs = {
       hss.enable = true;
       mme.enable = true;
@@ -196,7 +179,14 @@ in {
       pcrf.enable = true;
     };
 
-    environment.systemPackages = [ genCerts ];
+    # Setup SRSRAN eNodeB
+    services.srsran.enodeb = {
+      enable = true;
+      settings = {
+        enb.mme_addr = "127.0.0.2";
+      };
+    };
+
     nixpkgs.overlays = [ (import ../default.nix) ];
   };
 }
