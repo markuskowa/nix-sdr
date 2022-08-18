@@ -1,16 +1,16 @@
 { lib, stdenv, fetchFromGitHub, cmake, pkg-config,
   boost, mbedtls, fftwFloat, libconfig, lksctp-tools,
-  soapysdr-with-plugins, zeromq } :
+  soapysdr-with-plugins, zeromq, pcsclite } :
 
 stdenv.mkDerivation rec {
   pname = "srsran";
-  version = "22.04";
+  version = "22.04.1";
 
   src = fetchFromGitHub {
     owner = "srsran";
     repo = "srsRAN";
     rev = "release_${lib.replaceChars ["."] ["_"] version}";
-    sha256 = "sha256-FC6RopxEgZdMTyWvbn7Bwom93hWuDD8lEhqC/GuxhAw=";
+    sha256 = "sha256-jqaGlMhy6L6lRknl6Ezi0n+vNjMb7C+FN9a+QeOy/RY=";
   };
 
   nativeBuildInputs = [ cmake pkg-config ];
@@ -23,6 +23,7 @@ stdenv.mkDerivation rec {
     mbedtls
     libconfig
     lksctp-tools
+    pcsclite
     soapysdr-with-plugins
     zeromq
   ];
