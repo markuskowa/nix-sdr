@@ -1,9 +1,6 @@
 { pkgs, lib, ... } :
 
 let
-  user_db = pkgs.writeText "user_db.csv" ''
-    ue,mil,001010123456780,00112233445566778899aabbccddeeff,opc,63bfa50ee6523365ff14c1f45f88737d,8000,000000001234,7,dynamic
-  '';
 
   common = {
     imports = [ ../modules/lte.nix ];
@@ -17,13 +14,6 @@ in {
     nitb = { config, pkgs, ... } : {
       virtualisation.memorySize = 2048;
       imports = [ common ];
-
-      networking.extraHosts = ''
-        127.0.0.1 hss.lte
-        127.0.0.1 mme.lte
-        127.0.0.1 pcrf.lte
-        127.0.0.1 smf.lte
-      '';
 
       services.open5gs.nitb.enable = true;
 
@@ -89,7 +79,6 @@ in {
     nitb.succeed("${pkgs.open5gs}/bin/open5gs-dbctl add 001010123456780 00112233445566778899aabbccddeeff 63bfa50ee6523365ff14c1f45f88737d");
 
     ue.wait_for_unit("srsran-ue");
-    nitb.succeed("ip a add 10.45.0.1/16 dev ogstun")
 
     ue.wait_until_succeeds("ping -c1 10.45.0.1", timeout=300);
   '';

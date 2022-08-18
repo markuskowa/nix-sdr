@@ -7,18 +7,6 @@ let
 
   formatter = pkgs.formats.yaml {};
 
-  # Service template
-  service = name: settings: mkIf cfg."${name}".enable {
-    wantedBy = [ "multi-user.target" ];
-    requires = [ "network-online.target" ];
-    after = [ "network-online.target" "mongodb.service" ];
-
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.open5gs}/bin/open5gs-${name}d -c ${formatter.generate "${name}.yml" settings}";
-    };
-  };
-
   # Options template
   options = name: defaults: {
     enable = mkEnableOption "${name}";
@@ -47,44 +35,79 @@ let
     ConnectPeer = "${peer}.lte" { ConnectTo = "${peerIp}"; };
   '';
 
-  services = [
-    "hss"
-    "mme"
-    "sgwc"
-    "sgwu"
-    "smf"
-    "upf"
-    "pcrf"
-  ];
+  addr_option = name: def: mkOption {
+    type = with types; str;
+    description = "${name} nodes";
+    default = def;
+  };
+
+  addr2conf = map (x: { addr = x; } );
+
 in {
 
   options.services.open5gs = {
     nitb.enable = mkEnableOption "Open5GS NITB";
 
+    net = {
+      mmc = mkOption {
+        description = "Mobile Country Code";
+        type = types.str;
+        default = "001";
+      };
+      mnc = mkOption {
+        description = "Mobile Network Code";
+        type = types.str;
+        default = "01";
+      };
+
+      addr = {
+        mme = addr_option "hss" "127.0.0.2";
+        sgwc = addr_option "sgwc" "127.0.0.3";
+        smf = addr_option "smf" "127.0.0.4";
+        sgwu = addr_option "sgwu" "127.0.0.6";
+        upf = addr_option "upf" "127.0.0.7";
+        hss = addr_option "hss" "127.0.0.8";
+        pcrf = addr_option "pcrf" "127.0.0.9";
+      };
+
+      gw = {
+        addr = mkOption {
+          description = "networking.interaces.dev.addresses.ipv4 compatible set for the gateway interface";
+          type = with types; attrs;
+          default = { address = "10.45.0.1"; prefixLength = 16; };
+        };
+        device = mkOption {
+          description = "TUN device for gateway";
+          type = types.str;
+          default = "ogstun1";
+        };
+      };
+    };
+
     hss = options "hss" {
       db_uri = "mongodb://localhost/open5gs";
       logger.file = "/var/log/hss.log";
-      hss.freeDiameter = makeDiameter "hss" "mme" "127.0.0.8" "127.0.0.2";
+      hss.freeDiameter = makeDiameter "hss" "mme" cfg.net.addr.hss cfg.net.addr.mme;
     };
 
     mme = options "mme" {
       logger.file = "/var/log/mme.log";
       mme = {
-        freeDiameter = makeDiameter "mme" "hss" "127.0.0.2" "127.0.0.8";
-        s1ap = [ {addr = "127.0.0.2";} ];
-        gtpc = [ {addr = "127.0.0.2";} ];
+        freeDiameter = makeDiameter "mme" "hss" cfg.net.addr.mme cfg.net.addr.hss;
+        s1ap = [ {addr = cfg.net.addr.mme;} ];
+        gtpc = [ {addr = cfg.net.addr.mme;} ];
         gummei = {
           plmn_id = {
-            mcc = "001";
-            mnc = "01";
+            mcc = cfg.net.mmc;
+            mnc = cfg.net.mnc;
           };
           mme_gid = 1;
           mme_code = 1;
         };
         tai = {
           plmn_id = {
-            mcc = "001";
-            mnc = "01";
+            mcc = cfg.net.mmc;
+            mnc = cfg.net.mnc;
           };
           tac = 7;
         };
@@ -97,10 +120,10 @@ in {
         };
         mme_name = "open5gs-mme1";
       };
-      sgwc.gtpc = [{addr = "127.0.0.3";}];
-      smf.gtpc = [{addr = "127.0.0.4";}];
+      sgwc.gtpc = [{addr = cfg.net.addr.sgwc;}];
+      smf.gtpc = [{addr = cfg.net.addr.smf;}];
       metrics = {
-        addr = "127.0.0.2";
+        addr = cfg.net.addr.mme;
         port = "9090";
       };
     };
@@ -108,32 +131,31 @@ in {
     sgwc = options "sgwc" {
       logger.file = "/var/log/sgwc.log";
       sgwc = {
-        gtpc = [{ addr = "127.0.0.3"; }];
-        pfcp = [{ addr = "127.0.0.3"; }];
+        gtpc = [{ addr = cfg.net.addr.sgwc; }];
+        pfcp = [{ addr = cfg.net.addr.sgwc; }];
       };
-      sgwu.pfcp = [{ addr = "127.0.0.6"; }];
+      sgwu.pfcp = [{ addr = cfg.net.addr.sgwu; }];
     };
 
     # SMF/PGW-C
     smf = options "smf" {
       logger.file = "/var/log/smf.log";
       smf = {
-        sbi = [{ addr = "127.0.0.4"; port = 7777; }];
-        pfcp = [{ addr = "127.0.0.4"; }];
-        gtpc = [{ addr = "127.0.0.4"; }];
-        gtpu = [{ addr = "127.0.0.4"; }];
-        subnet = [{ addr = "10.45.0.1/16"; }];
+        sbi = [{ addr = cfg.net.addr.smf; port = 7777; }];
+        pfcp = [{ addr = cfg.net.addr.smf; }];
+        gtpc = [{ addr = cfg.net.addr.smf; }];
+        gtpu = [{ addr = cfg.net.addr.smf; }];
+        subnet = [{ addr = with cfg.net.gw.addr; "${address}/${toString prefixLength}"; }];
         dns = [ "8.8.8.8" "8.8.4.4" ];
         mtu = 1400;
         ctf.enabled = "auto";
-        freeDiameter = makeDiameter "smf" "pcrf" "127.0.0.4" "127.0.0.9";
+        freeDiameter = makeDiameter "smf" "pcrf" cfg.net.addr.smf cfg.net.addr.pcrf;
       };
 
-      # nrf.sbi = [{ addr = "127.0.0.10"; port = 7777; }];
-      upf.pfcp = [{ addr = "127.0.0.7"; }];
+      upf.pfcp = [{ addr = cfg.net.addr.upf; }];
 
       metrics = {
-        addr = "127.0.0.4";
+        addr = cfg.net.addr.smf;
         port = "9090";
       };
     };
@@ -141,8 +163,8 @@ in {
     sgwu = options "sgwu" {
       logger.file = "/var/log/sgwu.log";
       sgwu = {
-        pfcp = [{ addr = "127.0.0.6"; }];
-        gtpu = [{ addr = "127.0.0.6"; }];
+        pfcp = [{ addr = cfg.net.addr.sgwu; }];
+        gtpu = [{ addr = cfg.net.addr.sgwu; }];
       };
     };
 
@@ -150,23 +172,28 @@ in {
     upf = options "upf" {
       logger.file = "/var/log/upf.log";
       upf = {
-        pfcp = [{ addr = "127.0.0.7"; }];
-        gtpu = [{ addr = "127.0.0.7"; }];
-        subnet = [{ addr = "10.45.0.1/16"; }];
+        pfcp = [{ addr = cfg.net.addr.upf; }];
+        gtpu = [{ addr = cfg.net.addr.upf; }];
+        subnet = [{
+          addr = with cfg.net.gw.addr; "${address}/${toString prefixLength}";
+          dev = cfg.net.gw.device;
+        }];
       };
     };
 
     pcrf = options "pcrf" {
       db_uri = "mongodb://localhost/open5gs";
       logger.file = "/var/log/pcrf.log";
-      pcrf.freeDiameter = makeDiameter "pcrf" "smf" "127.0.0.9" "127.0.0.4";
+      pcrf.freeDiameter = makeDiameter "pcrf" "smf" cfg.net.addr.pcrf cfg.net.addr.smf;
     };
   };
 
-  config = mkIf cfg.nitb.enable {
-    services.mongodb.enable = true;
+  imports = [ ./open5gs-services.nix ];
 
-    systemd.services = listToAttrs (map (name: nameValuePair "open5gs-${name}" (service name cfg."${name}".settings)) services);
+  config = mkIf cfg.nitb.enable {
+
+    # Subscriber DB
+    services.mongodb.enable = true;
 
     # Setup EPC
     services.open5gs = {
@@ -183,9 +210,23 @@ in {
     services.srsran.enodeb = {
       enable = true;
       settings = {
-        enb.mme_addr = "127.0.0.2";
+        enb.mme_addr = cfg.net.addr.mme;
       };
     };
+
+    networking.interfaces."${cfg.net.gw.device}" = {
+      virtual = true;
+      virtualType = "tun";
+      ipv4.addresses = [ cfg.net.gw.addr ];
+    };
+
+    # Make sure diameter can resolve identities
+    networking.extraHosts = ''
+      127.0.0.1 hss.lte
+      127.0.0.1 mme.lte
+      127.0.0.1 pcrf.lte
+      127.0.0.1 smf.lte
+    '';
 
     nixpkgs.overlays = [ (import ../default.nix) ];
   };
