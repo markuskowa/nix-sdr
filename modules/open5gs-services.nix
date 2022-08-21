@@ -44,6 +44,8 @@ let
       Restart = "always";
       RestartSec = 2;
       RestartPreventExitStatus = 1;
+      User = "open5gs";
+      Group = "open5gs";
     };
   };
 
@@ -79,16 +81,22 @@ in {
   config = {
     systemd.services = listToAttrs (map (name: nameValuePair "open5gs-${name}" (service name cfg."${name}".settings)) services);
 
+    users = mkIf (any (x: cfg."${x}".enable) services) {
+      users.open5gs = {
+        isSystemUser = true;
+        group = "open5gs";
+      };
+      groups.open5gs = {};
+    };
+
     # HSS
     services.open5gs.hss.settings = mkIf cfg.hss.enable (makeDefaults {
       db_uri = "mongodb://localhost/open5gs";
-      logger.file = "/var/log/hss.log";
       hss.freeDiameter = makeDiameter "hss" "mme" cfg.net.addr.hss cfg.net.addr.mme;
     });
 
     # MME
     services.open5gs.mme.settings = mkIf cfg.mme.enable (makeDefaults {
-      logger.file = "/var/log/mme.log";
       mme = {
         freeDiameter = makeDiameter "mme" "hss" cfg.net.addr.mme cfg.net.addr.hss;
         s1ap = [ {addr = cfg.net.addr.mme;} ];
@@ -127,7 +135,6 @@ in {
 
     # SGW-C
     services.open5gs.sgwc.settings = mkIf cfg.sgwc.enable (makeDefaults {
-      logger.file = "/var/log/sgwc.log";
       sgwc = {
         gtpc = [{ addr = cfg.net.addr.sgwc; }];
         pfcp = [{ addr = cfg.net.addr.sgwc; }];
@@ -137,7 +144,6 @@ in {
 
     # SMF/PGW-C
     services.open5gs.smf.settings = mkIf cfg.smf.enable (makeDefaults {
-      logger.file = "/var/log/smf.log";
       smf = {
         sbi = [{ addr = cfg.net.addr.smf; port = 7777; }];
         pfcp = [{ addr = cfg.net.addr.smf; }];
@@ -160,7 +166,6 @@ in {
 
     # SGW-U
     services.open5gs.sgwu.settings = mkIf cfg.sgwu.enable (makeDefaults {
-      logger.file = "/var/log/sgwu.log";
       sgwu = {
         pfcp = [{ addr = cfg.net.addr.sgwu; }];
         gtpu = [{ addr = cfg.net.addr.sgwu; }];
@@ -169,7 +174,6 @@ in {
 
     # UPF/PGW-U
     services.open5gs.upf.settings = mkIf cfg.upf.enable (makeDefaults {
-      logger.file = "/var/log/upf.log";
       upf = {
         pfcp = [{ addr = cfg.net.addr.upf; }];
         gtpu = [{ addr = cfg.net.addr.upf; }];
@@ -183,7 +187,6 @@ in {
     # PCRF
     services.open5gs.pcrf.settings = mkIf cfg.pcrf.enable (makeDefaults {
       db_uri = "mongodb://localhost/open5gs";
-      logger.file = "/var/log/pcrf.log";
       pcrf.freeDiameter = makeDiameter "pcrf" "smf" cfg.net.addr.pcrf cfg.net.addr.smf;
     });
   };

@@ -85,6 +85,7 @@ in {
     networking.interfaces."${cfg.net.gw.device}" = {
       virtual = true;
       virtualType = "tun";
+      virtualOwner = "open5gs";
       ipv4.addresses = [ cfg.net.gw.addr ];
     };
 

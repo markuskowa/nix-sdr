@@ -14,6 +14,11 @@ let
     serviceConfig = {
       Type = "simple";
       ExecStart = "${pkgs."osmo-${name}"}/bin/osmo-${name} -c ${pkgs.writeText "${name}.cfg" settings}";
+      Restart = "always";
+      RestartSec = 2;
+      User = "osmo";
+      Group = "osmo";
+      StateDirectory = "osmo-${name}";
     };
   };
 
@@ -89,5 +94,13 @@ in {
         };
       };
     } // listToAttrs (map (name: nameValuePair "osmo-${name}" (service name cfg."${name}".cfg)) services);
+
+    users = mkIf (any (x: cfg."${x}".enable) services) {
+      users.osmo = {
+        isSystemUser = true;
+        group = "osmo";
+      };
+      groups.osmo = {};
+    };
   };
 }

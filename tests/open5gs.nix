@@ -44,6 +44,7 @@ in {
             ${pkgs.openssl}/bin/openssl req -new -batch -out $out/$i.csr.pem -key $out/$i.key.pem -subj /CN=$i.lte/C=SE/ST=local/L=local/O=Open5GS/OU=Tests
             ${pkgs.openssl}/bin/openssl ca -cert $out/cacert.pem -days 3650 -keyfile $out/cakey.pem -in $out/$i.csr.pem -out $out/$i.cert.pem -outdir $out -batch
           done
+          chown open5gs $out/*
         ''
       ) ];
     };

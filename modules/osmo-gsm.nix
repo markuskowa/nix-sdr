@@ -130,6 +130,8 @@ let
      check-imei-rqd early
      auth-tuple-max-reuse-count 3
      auth-tuple-reuse-on-error 1
+    smsc
+     database /var/lib/osmo-msc/sms.db
   '';
 
   hlrCfg = ''

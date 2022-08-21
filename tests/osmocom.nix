@@ -52,7 +52,8 @@ in {
   };
 
   testScript = ''
-    nitb.succeed("mkdir -p /var/lib/osmo-hlr; ${pkgs.osmo-hlr}/bin/osmo-hlr-db-tool -l /var/lib/osmo-hlr/hlr.db create");
+    nitb.wait_for_unit("osmo-hlr.service")
+    nitb.succeed("sudo -u osmo ${pkgs.osmo-hlr}/bin/osmo-hlr-db-tool -l /var/lib/osmo-hlr/hlr.db create");
     nitb.succeed("systemctl restart osmo-hlr");
     nitb.wait_for_unit("osmo-hlr.service")
     nitb.wait_for_unit("osmo-msc.service")
