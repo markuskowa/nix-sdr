@@ -4,6 +4,7 @@ let
 
   common = {
     imports = [ ../modules/lte.nix ];
+    nixpkgs.overlays = [ (import ../default.nix) ];
     networking.firewall.enable = false;
   };
 

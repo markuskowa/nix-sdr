@@ -95,7 +95,5 @@ in {
       ${cfg.net.addr.pcrf} pcrf.lte
       ${cfg.net.addr.smf} smf.lte
     '';
-
-    nixpkgs.overlays = [ (import ../default.nix) ];
   };
 }

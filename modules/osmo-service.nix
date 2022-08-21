@@ -89,7 +89,5 @@ in {
         };
       };
     } // listToAttrs (map (name: nameValuePair "osmo-${name}" (service name cfg."${name}".cfg)) services);
-
-    nixpkgs.overlays = [ (import ../default.nix) ];
   };
 }
