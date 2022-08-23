@@ -117,8 +117,8 @@ in {
           tac = 7;
         };
         security = {
-            integrity_order = [ "EIA2" "EIA1" "EIA0" ];
-            ciphering_order = [ "EEA0" "EEA1" "EEA2" ];
+            integrity_order = [ "EIA2" "EIA1" ];
+            ciphering_order = [ "EEA2" "EEA1" ];
         };
         network_name = {
             full = "Open5GS";
