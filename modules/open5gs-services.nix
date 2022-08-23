@@ -129,7 +129,7 @@ in {
       smf.gtpc = [{addr = cfg.net.addr.smf;}];
       metrics = {
         addr = cfg.net.addr.mme;
-        port = "9090";
+        port = 9090;
       };
     });
 
@@ -160,7 +160,7 @@ in {
 
       metrics = {
         addr = cfg.net.addr.smf;
-        port = "9090";
+        port = 9090;
       };
     });
 
