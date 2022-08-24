@@ -121,9 +121,10 @@ in {
             ciphering_order = [ "EEA2" "EEA1" ];
         };
         network_name = {
-            full = "Open5GS";
+            full = cfg.net.name.full;
+            short = cfg.net.name.short;
         };
-        mme_name = "open5gs-mme1";
+        mme_name = "${cfg.net.name.short}-mme1";
       };
       sgwc.gtpc = [{addr = cfg.net.addr.sgwc;}];
       smf.gtpc = [{addr = cfg.net.addr.smf;}];

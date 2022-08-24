@@ -30,6 +30,19 @@ in {
         default = "01";
       };
 
+      name = {
+        full = mkOption {
+          description = "Full network name";
+          type = types.str;
+          default = "Open5GS";
+        };
+        short = mkOption {
+          description = "Short network name";
+          type = types.str;
+          default = "Open5GS";
+        };
+      };
+
       addr = {
         mme = addr_option "mme" "127.0.0.2";
         sgwc = addr_option "sgwc" "127.0.0.3";
