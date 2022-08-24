@@ -48,7 +48,11 @@ with super;
 
   libulfius = callPackage ./libulfius {};
 
+  free-diameter = callPackage ./free-diameter {};
+
   open5gs = callPackage ./open5gs {};
+
+  open5gs-webui = callPackage ./open5gs/webui.nix {};
 
   osmo-cbc = callPackage ./osmo-cbc {};
 

@@ -6,6 +6,38 @@ let
 
   cfg = config.services.osmo;
 
+  # {
+  #  "log vty" = {
+  #    set value
+  # }
+
+  settingsToCfg = settings:
+    concatStringsSep "\n" (flatten (handleAttrs settings ""));
+
+  handleAttrs = settings: indent:
+    mapAttrsToList (name: value:
+    if isAttrs value
+    then [name] ++ (handleAttrs value (indent + " "))
+    else map (x:
+      if isAttrs x
+      then handleAttrs x indent
+      else x) value
+    );
+
+  formatter = {
+    type = with types; let
+      valueType = oneOf [
+        (listOf str valueType)
+        (attrsOf valueType)
+      ] // {
+        description = "Osmocom configuration files";
+      };
+    in valueType;
+
+    generate = name: value:
+      pkgs.writeText name (settingsToCfg value);
+  };
+
   bscCfg = ''
     ! osmo-bsc default configuration
     ! (assumes STP to run on 127.0.0.1 and uses default point codes)

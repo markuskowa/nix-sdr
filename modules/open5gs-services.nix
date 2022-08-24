@@ -66,6 +66,25 @@ let
     LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca_3gpp.fdx";
     ConnectPeer = "${peer}.lte" { ConnectTo = "${peerIp}"; };
   '';
+  makeDiameterYaml = name: peer: listen: peerIp: {
+    identity = "${name}.lte";
+    realm = "lte";
+    listen_on = "${listen}";
+    no_fwd = true;
+
+    load_extension = [
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dbg_msg_dumps.fdx"; conf = "0x8888"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_rfc5777.fdx"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_mip6i.fdx"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_nasreq.fdx"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_nas_mipv6.fdx"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca.fdx"; }
+      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca_3gpp.fdx"; }
+    ];
+    connect = [
+      { identity = "${peer}.lte"; addr = "${peerIp}"; }
+    ];
+  };
 
 in {
   options.services.open5gs = {
