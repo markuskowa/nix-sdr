@@ -5,6 +5,8 @@ with lib;
 let
   cfg = config.services.open5gs;
 
+  mlib = import ./lib.nix pkgs lib;
+
   formatter = pkgs.formats.yaml {};
 
   services = [
@@ -18,12 +20,14 @@ let
   ];
 
   # Options template
-  options = name: {
+  options = name: options: {
     enable = mkEnableOption "${name}";
     settings = mkOption {
       description = "Contents of config file";
-      type = formatter.type;
-      default = {};
+      type = types.submodule {
+        freeformType = formatter.type;
+        inherit options;
+      };
     };
   };
 
@@ -38,9 +42,16 @@ let
     after = [ "network-online.target" ];
     wants = optional (name == "hss" || name == "pcrf") "mongodb.service";
 
-    serviceConfig = {
+    serviceConfig = let
+      settings' = if settings."${name}" ? freeDiameter then
+        updateManyAttrsByPath [{
+          path = [ name "freeDiameter" ];
+          update = x: mlib.makeDiameterConf name "${pkgs.open5gs}/lib/freeDiameter" x;
+        }] settings
+      else settings;
+    in {
       Type = "simple";
-      ExecStart = "${pkgs.open5gs}/bin/open5gs-${name}d -c ${formatter.generate "${name}.yml" settings}";
+      ExecStart = "${pkgs.open5gs}/bin/open5gs-${name}d -c ${formatter.generate "${name}.yml" settings'}";
       Restart = "always";
       RestartSec = 2;
       RestartPreventExitStatus = 1;
@@ -49,52 +60,42 @@ let
     };
   };
 
-  makeDiameter = name: peer: listen: peerIp: pkgs.writeText "${name}.conf" ''
-    Identity = "${name}.lte";
-    Realm = "lte";
-    ListenOn = "${listen}";
-    NoRelay;
-    TLS_Cred = "/var/lib/open5gs/${name}.cert.pem", "/var/lib/open5gs/${name}.key.pem";
-    TLS_CA = "/var/lib/open5gs/cacert.pem";
-
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dbg_msg_dumps.fdx" : "0x8888";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_rfc5777.fdx";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_mip6i.fdx";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_nasreq.fdx";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_nas_mipv6.fdx";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca.fdx";
-    LoadExtension = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca_3gpp.fdx";
-    ConnectPeer = "${peer}.lte" { ConnectTo = "${peerIp}"; };
-  '';
-  makeDiameterYaml = name: peer: listen: peerIp: {
+  makeDiameter = name: peer: listen: peerIp: {
     identity = "${name}.lte";
     realm = "lte";
-    listen_on = "${listen}";
-    no_fwd = true;
+    listenOn = [ listen ];
+    relay = false;
 
-    load_extension = [
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dbg_msg_dumps.fdx"; conf = "0x8888"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_rfc5777.fdx"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_mip6i.fdx"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_nasreq.fdx"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_nas_mipv6.fdx"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca.fdx"; }
-      { module = "${pkgs.open5gs}/lib/freeDiameter/dict_dcca_3gpp.fdx"; }
+    tls = {
+      cert = "/var/lib/open5gs/${name}.cert.pem";
+      key  = "/var/lib/open5gs/${name}.key.pem";
+      ca = "/var/lib/open5gs/cacert.pem";
+    };
+
+    extensions = [
+      { module = "dbg_msg_dumps.fdx"; option = "0x8888"; }
+      { module = "dict_rfc5777.fdx"; }
+      { module = "dict_mip6i.fdx"; }
+      { module = "dict_nasreq.fdx"; }
+      { module = "dict_nas_mipv6.fdx"; }
+      { module = "dict_dcca.fdx"; }
+      { module = "dict_dcca_3gpp.fdx"; }
     ];
-    connect = [
-      { identity = "${peer}.lte"; addr = "${peerIp}"; }
+
+    peers = [
+      { peer = "${peer}.lte"; addr = peerIp; }
     ];
   };
 
 in {
   options.services.open5gs = {
-    hss = options "HSS";
-    mme = options "MME";
-    sgwc = options "SGW-C";
-    smf = options "SMF/PGW-C";
-    sgwu = options "SGW-U";
-    upf = options "UPF/PGW-U";
-    pcrf = options "PCRF";
+    hss = options "HSS" { hss.freeDiameter = mlib.freediameterModule; };
+    mme = options "MME" { mme.freeDiameter = mlib.freediameterModule; };
+    sgwc = options "SGW-C" {};
+    smf = options "SMF/PGW-C" { smf.freeDiameter = mlib.freediameterModule; };
+    sgwu = options "SGW-U" {};
+    upf = options "UPF/PGW-U" {};
+    pcrf = options "PCRF" { pcrf.freeDiameter = mlib.freediameterModule; };
   };
 
   config = {
