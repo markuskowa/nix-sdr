@@ -23,6 +23,7 @@ in {
     srsran = handleTest ./tests/srsran.nix {};
     srsran-nitb = handleTest ./tests/srsran-nitb.nix {};
     open5gs-nitb = handleTest ./tests/open5gs.nix {};
+    open5gs-core = handleTest ./tests/open5gs-core.nix {};
     osmocom = handleTest ./tests/osmocom.nix {};
   };
 }
