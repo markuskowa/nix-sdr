@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "3.1.0";
+  version = "3.3.1";
 
 in stdenv.mkDerivation {
   pname = "odrAudioEnc";
@@ -13,7 +13,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-AudioEnc";
     rev = "v${version}";
-    sha256 = "1jgagblhy3q384wz6r90wl1yfk3an7vsry8dwc0a0ld6d653hi9k";
+    sha256 = "sha256-H0Z8GOVcdm7F6Ph/KUo44lHgbVlV//ZfaDN/uMagXZ4=";
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkg-config ];
