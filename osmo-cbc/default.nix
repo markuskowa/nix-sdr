@@ -1,10 +1,13 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
 , talloc, libosmocore, libosmo-abis, libosmo-netif
 , libulfius, sqlite, jansson, gnutls, zlib, libmicrohttpd
+, python3
 }:
 
+let
+  python = python3.withPackages (ps: [ ps.requests ] );
 
-stdenv.mkDerivation rec {
+in stdenv.mkDerivation rec {
   pname = "osmo-cbc";
   version = "0.3.0";
 
@@ -32,7 +35,12 @@ stdenv.mkDerivation rec {
     zlib
     libmicrohttpd
     gnutls
+    python
   ];
+
+  postInstall = ''
+    cp contrib/cbc-apitool.py $out/bin/cbc-apitool
+  '';
 
   meta = with lib; {
     description = "Minimal 3GPP Cell Broadcast Centre";
