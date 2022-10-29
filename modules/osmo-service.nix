@@ -64,7 +64,7 @@ in {
 
       cfgTrx = mkOption {
         description = "Contents of osmo-trx config file";
-        type = types.str;
+        type = with types; nullOr str;
         default = null;
       };
     };
@@ -72,14 +72,14 @@ in {
 
   config = {
     systemd.services = {
-      osmo-trx = mkIf (cfg.bts.enable && cfg.bts.backend == "trx") {
+      osmo-trx = mkIf (cfg.bts.enable && cfg.bts.backend == "trx" && cfg.bts.cfgTrx != null) {
         wantedBy = [ "multi-user.target" ];
         requires = [ "network-online.target" ];
         after = [ "network-online.target" "osmo-bts.service" ];
 
         serviceConfig = {
           Type = "simple";
-          ExecStart = "${pkgs.osmo-trx}/bin/osmo-trx-lms -c ${pkgs.writeText "osmo-trx-lms.cfg" cfg.bts.cfgTrx}";
+          ExecStart = "${pkgs.osmo-trx}/bin/osmo-trx-lms -C ${pkgs.writeText "osmo-trx-lms.cfg" cfg.bts.cfgTrx}";
         };
       };
 
@@ -91,6 +91,8 @@ in {
         serviceConfig = {
           Type = "simple";
           ExecStart = "${pkgs.osmo-bts}/bin/osmo-bts-${cfg.bts.backend} -c ${pkgs.writeText "osmo-bts.cfg" cfg.bts.cfg}";
+          User = "osmo";
+          Group = "osmo";
         };
       };
     } // listToAttrs (map (name: nameValuePair "osmo-${name}" (service name cfg."${name}".cfg)) services);
