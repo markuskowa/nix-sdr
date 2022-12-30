@@ -78,6 +78,8 @@ with super;
 
   srsran = callPackage ./srsran {};
 
+  rtpproxy = callPackage ./rtpproxy {};
+
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
 
   rx_tools = callPackage ./rx_tools {};
