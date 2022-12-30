@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub , libfec, zeromq
+{ lib, stdenv, fetchFromGitHub , libfec, zeromq
 } :
 
 let
@@ -42,11 +42,11 @@ in stdenv.mkDerivation {
 #    cp ni2http $out/bin
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Tools to handle DAB ETI streams";
-    homepage = https://github.com/piratfm/eti-tools;
+    homepage = "https://github.com/piratfm/eti-tools";
     license = licenses.mpl20;
-    maintainers = maintainers.markuskowa;
+    maintainers = [ maintainers.markuskowa ];
     platforms = platforms.linux;
   };
 }
