@@ -12,6 +12,12 @@ in {
   options.services.srsran.enodeb = {
     enable = mkEnableOption "eNodeB service";
 
+    package = mkOption {
+      description = "SRSRAN package";
+      type = types.package;
+      default = pkgs.srsran;
+    };
+
     settings = mkOption {
       type = formatter.type;
       default = {};
@@ -30,8 +36,8 @@ in {
         s1c_bind_addr = mkDefault "127.0.1.1";
         s1c_bind_port = mkDefault 0;
         n_prb         = mkDefault 15;
-        mcc           = config.services.srsran.mcc;
-        mnc           = config.services.srsran.mnc;
+        mcc           = mkDefault config.services.srsran.mcc;
+        mnc           = mkDefault config.services.srsran.mnc;
       };
 
       enb_files = {
@@ -41,8 +47,8 @@ in {
       };
 
       rf = {
-        dl_earfcn = mkDefault 1906; # 1875.6 DL, 1780.6 UL, see https://www.sqimway.com/lte_band.php
-        tx_gain = mkDefault 60;
+        dl_earfcn = mkDefault 1917; # 1876.7 DL, 1781.7 UL, see https://www.sqimway.com/lte_band.php
+        tx_gain = mkDefault 55;
         rx_gain = mkDefault 40;
 
         device_name = mkDefault "soapy";
@@ -66,7 +72,7 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.srsran}/bin/srsenb ${formatter.generate "enb.conf" cfg.settings}";
+        ExecStart = "${cfg.package}/bin/srsenb ${formatter.generate "enb.conf" cfg.settings}";
       };
     };
   };
