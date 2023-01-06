@@ -43,6 +43,7 @@ let
     "pcu"
     "sgsn"
     "ggsn"
+    "sip-connector"
   ];
 
 in {

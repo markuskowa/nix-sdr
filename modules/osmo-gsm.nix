@@ -148,10 +148,10 @@ let
     network
      network country code ${cfg.nitb.mcc}
      mobile network code ${cfg.nitb.mnc}
-     short name OsmoMSC
-     long name OsmoMSC
-     encryption a5 0
-     authentication optional
+     short name ${cfg.nitb.nameShort}
+     long name ${cfg.nitb.nameShort}
+     encryption a5 0 1 3
+     authentication ${if cfg.nitb.requireAuth then "required" else "optional"}
      rrlp mode none
      mm info 1
     msc
@@ -162,6 +162,7 @@ let
      check-imei-rqd early
      auth-tuple-max-reuse-count 3
      auth-tuple-reuse-on-error 1
+     ${optionalString cfg.nitb.enableSIP "mncc external /tmp/msc_mncc"}
     smsc
      database /var/lib/osmo-msc/sms.db
   '';
@@ -173,7 +174,7 @@ let
      bind 127.0.0.1
     hlr
      database ${cfg.nitb.databasePath}
-     ${optionalString cfg.nitb.subscriber-create-on-demand "subscriber-create-on-demand 5 none"}
+     ${optionalString cfg.nitb.subscriberCreateOnDemand "subscriber-create-on-demand 5 none"}
      store-imei
      gsup
       bind ip 127.0.0.1
@@ -205,6 +206,16 @@ let
      listen m3ua 2905
       accept-asp-connections dynamic-permitted
   '';
+
+  sipCfg = ''
+    app
+    mncc
+      socket-path /tmp/msc_mncc
+    sip
+      local 127.0.0.1 7060
+      remote 127.0.0.1 5060
+  '';
+
 in {
 
   imports = [ ./osmo-service.nix ];
@@ -237,10 +248,28 @@ in {
         default = "01";
       };
 
-      subscriber-create-on-demand = mkOption {
+      nameShort = mkOption {
+        description = "Short network name";
+        type = types.str;
+        default = "Osmo";
+      };
+
+      nameLong = mkOption {
+        description = "Long network name";
+        type = types.str;
+        default = "Osmo";
+      };
+
+      subscriberCreateOnDemand = mkOption {
         description = "Create IMSI subscriber entry on demand in HLR register";
         type = types.bool;
         default = false;
+      };
+
+      requireAuth = mkOption {
+        description = "Require authentication";
+        type = types.bool;
+        default = true;
       };
 
       databasePath = mkOption {
@@ -248,6 +277,8 @@ in {
         type = types.str;
         default = "/var/lib/osmo-hlr/hlr.db";
       };
+
+      enableSIP = mkEnableOption "SIP connector";
     };
   };
 
@@ -264,6 +295,8 @@ in {
       mgw.cfg = mkDefault mgwCfg;
       stp.enable = true;
       stp.cfg = mkDefault stpCfg;
+      sip-connector.enable = cfg.nitb.enableSIP;
+      sip-connector.cfg = mkDefault sipCfg;
     };
   };
 }
