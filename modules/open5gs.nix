@@ -19,6 +19,12 @@ in {
     nitb.enable = mkEnableOption "Open5GS NITB";
 
     net = {
+      realm = mkOption {
+        description = "Top level DNS domain for network";
+        type = types.str;
+        default = "mnc${cfg.net.mnc}.mcc${cfg.net.mcc}.3gppnetwork.org";
+      };
+
       mcc = mkOption {
         description = "Mobile Country Code";
         type = types.str;
@@ -53,17 +59,44 @@ in {
         pcrf = addr_option "pcrf" "127.0.0.9";
       };
 
-      gw = {
-        addr = mkOption {
-          description = "networking.interaces.dev.addresses.ipv4 compatible set for the gateway interface";
-          type = with types; attrs;
-          default = { address = "10.45.0.1"; prefixLength = 16; };
-        };
-        device = mkOption {
-          description = "TUN device for gateway";
-          type = types.str;
-          default = "ogstun1";
-        };
+      apns = mkOption {
+        description = "Definition of APNs and its interfaces";
+        type = types.listOf (types.submodule ({ config, ... }: {
+          options = {
+            addr = mkOption {
+              description = "networking.interaces.dev.addresses.ipv4 compatible set for the gateway interface";
+              type = with types; attrs;
+              default = { address = "10.45.0.1"; prefixLength = 16; };
+            };
+            device = mkOption {
+              description = "TUN device for gateway";
+              type = types.str;
+              default = "ogstun1";
+            };
+            dnn = mkOption {
+              description = "Name of APN/DNN";
+              type = with types; nullOr str;
+              default = null;
+            };
+            range = mkOption {
+              description = "IP address range.";
+              type = with types; nullOr str;
+              default = null;
+            };
+          };
+        }));
+        default = [{
+          dnn = "internet";
+          addr = { address = "10.45.0.1"; prefixLength = 24; };
+          range = "10.45.0.20-10.45.0.100";
+          device = "apn-internet";
+        }{
+          # Fallback if not DNN/APN is specifed
+          # SMF/UPF crash if not UE has no APN
+          addr = { address = "10.45.0.1"; prefixLength = 24; };
+          range = "10.45.0.20-101.45.0.110";
+          device = "apn-internet";
+        }];
       };
     };
 
@@ -91,23 +124,29 @@ in {
     services.srsran.enodeb = {
       enable = mkDefault true;
       settings = {
-        enb.mme_addr = cfg.net.addr.mme;
+        enb = {
+          mme_addr = cfg.net.addr.mme;
+          mcc = config.services.open5gs.net.mcc;
+          mnc = config.services.open5gs.net.mnc;
+        };
       };
     };
 
-    networking.interfaces."${cfg.net.gw.device}" = {
-      virtual = true;
-      virtualType = "tun";
-      virtualOwner = "open5gs";
-      ipv4.addresses = [ cfg.net.gw.addr ];
-    };
+    networking.interfaces = listToAttrs (map (x: {
+      name = x.device;
+      value = {
+        virtual = true;
+        virtualType = "tun";
+        virtualOwner = "open5gs";
+        ipv4.addresses = [ x.addr ];
+      };}) cfg.net.apns);
 
     # Make sure diameter can resolve identities
     networking.extraHosts = ''
-      ${cfg.net.addr.hss} hss.lte
-      ${cfg.net.addr.mme} mme.lte
-      ${cfg.net.addr.pcrf} pcrf.lte
-      ${cfg.net.addr.smf} smf.lte
+      ${cfg.net.addr.hss} hss.epc.${cfg.net.realm}
+      ${cfg.net.addr.mme} mme.epc.${cfg.net.realm}
+      ${cfg.net.addr.pcrf} pcrf.epc.${cfg.net.realm}
+      ${cfg.net.addr.smf} smf.epc.${cfg.net.realm}
     '';
   };
 }

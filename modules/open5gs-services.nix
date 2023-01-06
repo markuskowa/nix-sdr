@@ -60,9 +60,9 @@ let
     };
   };
 
-  makeDiameter = name: peer: listen: peerIp: {
-    identity = "${name}.lte";
-    realm = "lte";
+  makeDiameter = name: peers: listen: {
+    identity = "${name}.epc.${cfg.net.realm}";
+    realm = "epc.${cfg.net.realm}";
     listenOn = [ listen ];
     relay = false;
 
@@ -82,9 +82,7 @@ let
       { module = "dict_dcca_3gpp.fdx"; }
     ];
 
-    peers = [
-      { peer = "${peer}.lte"; addr = peerIp; }
-    ];
+    inherit peers;
   };
 
 in {
@@ -112,13 +110,13 @@ in {
     # HSS
     services.open5gs.hss.settings = mkIf cfg.hss.enable (makeDefaults {
       db_uri = "mongodb://localhost/open5gs";
-      hss.freeDiameter = makeDiameter "hss" "mme" cfg.net.addr.hss cfg.net.addr.mme;
+      hss.freeDiameter = makeDiameter "hss" [{ peer = "mme.epc.${cfg.net.realm}"; addr = cfg.net.addr.mme; }] cfg.net.addr.hss;
     });
 
     # MME
     services.open5gs.mme.settings = mkIf cfg.mme.enable (makeDefaults {
       mme = {
-        freeDiameter = makeDiameter "mme" "hss" cfg.net.addr.mme cfg.net.addr.hss;
+        freeDiameter = makeDiameter "mme" [{ peer = "hss.epc.${cfg.net.realm}"; addr = cfg.net.addr.hss; }] cfg.net.addr.mme;
         s1ap = [ {addr = cfg.net.addr.mme;} ];
         gtpc = [ {addr = cfg.net.addr.mme;} ];
         gummei = {
@@ -170,11 +168,18 @@ in {
         pfcp = [{ addr = cfg.net.addr.smf; }];
         gtpc = [{ addr = cfg.net.addr.smf; }];
         gtpu = [{ addr = cfg.net.addr.smf; }];
-        subnet = [{ addr = with cfg.net.gw.addr; "${address}/${toString prefixLength}"; }];
+        subnet = map (x: {
+            addr = "${x.addr.address}/${toString x.addr.prefixLength}";
+        } // optionalAttrs (x.range != null) {
+            range  = "${x.range}";
+        } // optionalAttrs (x.dnn != null) {
+            dnn  = "${x.dnn}";
+        }) cfg.net.apns;
+
         dns = [ "8.8.8.8" "8.8.4.4" ];
         mtu = 1400;
         ctf.enabled = "auto";
-        freeDiameter = makeDiameter "smf" "pcrf" cfg.net.addr.smf cfg.net.addr.pcrf;
+        freeDiameter = makeDiameter "smf" [{ peer = "pcrf.epc.${cfg.net.realm}"; addr = cfg.net.addr.pcrf; }] cfg.net.addr.smf;
       };
 
       upf.pfcp = [{ addr = cfg.net.addr.upf; }];
@@ -198,17 +203,20 @@ in {
       upf = {
         pfcp = [{ addr = cfg.net.addr.upf; }];
         gtpu = [{ addr = cfg.net.addr.upf; }];
-        subnet = [{
-          addr = with cfg.net.gw.addr; "${address}/${toString prefixLength}";
-          dev = cfg.net.gw.device;
-        }];
+        subnet = map (x: {
+            addr = "${x.addr.address}/${toString x.addr.prefixLength}";
+        } // optionalAttrs (x.device != null) {
+            dev  = "${x.device}";
+        } // optionalAttrs (x.dnn != null) {
+            dnn  = "${x.dnn}";
+        }) cfg.net.apns;
       };
     });
 
     # PCRF
     services.open5gs.pcrf.settings = mkIf cfg.pcrf.enable (makeDefaults {
       db_uri = "mongodb://localhost/open5gs";
-      pcrf.freeDiameter = makeDiameter "pcrf" "smf" cfg.net.addr.pcrf cfg.net.addr.smf;
+      pcrf.freeDiameter = makeDiameter "pcrf" [{ peer = "smf.epc.${cfg.net.realm}"; addr = cfg.net.addr.smf; }] cfg.net.addr.pcrf;
     });
   };
 }
