@@ -76,6 +76,8 @@ with super;
 
   osmo-ggsn = callPackage ./osmo-ggsn {};
 
+  osmo-sip-connector = callPackage ./osmo-sip-connector {};
+
   srsran = callPackage ./srsran {};
 
   srsran-limesdr = callPackage ./srsran/limesdr.nix {};
