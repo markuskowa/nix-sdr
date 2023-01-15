@@ -17,6 +17,8 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-jxFAc1PRGcQKEBy8I+YIGtLMGXEkOEPoWmY66bdn4Pg=";
   };
 
+  patches = [ ./kamctl.patch ];
+
   nativeBuildInputs = [
     flex
     bison
