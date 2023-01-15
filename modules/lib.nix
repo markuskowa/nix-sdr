@@ -1,3 +1,7 @@
+#
+# Various module related functions
+#
+
 pkgs: lib:
 
 with lib;
@@ -54,7 +58,9 @@ with lib;
     ];
   };
 
+  #
   # Template for a freeDiameter config module
+  #
   freediameterModule = {
     identity = mkOption { type = types.str; };
     realm = mkOption { type = types.str; };
@@ -88,11 +94,45 @@ with lib;
           addr = mkOption { type = nullOr str; default = null; };
           tls = mkOption {
             type = types.bool;
-            default = true;
+            default = false;
           };
           options = mkOption { type = types.str; default = ""; };
         };
       }));
     };
+  };
+
+  # Formatter for Osmocon config files
+  osmo-formatter = let
+    settingsToCfg = settings:
+      concatStringsSep "\n" (flatten (handleAttrs settings ""));
+
+    handleAttrs = settings: indent:
+      map (f: if isFunction f then f 1 else f)
+      (sort (x: y: isList y || isFunction x) (mapAttrsToList (name: value:
+        if isAttrs value
+        then [ "${indent}${name}" (sortAttrs value (indent + " ")) ]
+        else if isFunction value
+        then x: indent + "${name} ${toString (value 1)}"
+        else indent + "${name} ${toString value}"
+      ) settings ));
+
+  in {
+    type = with types; let
+      # this is a dummy type to sort entries to the top
+      function = mkOptionType {
+        name = "function";
+        check = x: isFunction x;
+      };
+      valueType = oneOf [
+        str int function
+        (attrsOf valueType)
+      ] // {
+        description = "Osmocom configuration files";
+      };
+    in valueType;
+
+    generate = name: settings:
+      pkgs.writeText name (settingsToCfg settings);
   };
 }

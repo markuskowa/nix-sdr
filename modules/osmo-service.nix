@@ -5,6 +5,8 @@ with lib;
 let
   cfg = config.services.osmo;
 
+  mlib = import ./lib.nix pkgs lib;
+
   # Service template
   service = name: settings: mkIf cfg."${name}".enable {
     wantedBy = [ "multi-user.target" ];
@@ -33,17 +35,10 @@ let
   };
 
   services = [
-    "bsc"
-    "msc"
-    "hlr"
-    "stp"
-    "mgw"
-    "stp"
     "cbc"
     "pcu"
     "sgsn"
     "ggsn"
-    "sip-connector"
   ];
 
 in {
@@ -85,8 +80,9 @@ in {
       };
 
       osmo-bts = mkIf cfg.bts.enable {
-        wantedBy = [ "multi-user.target" ];
+        wantedBy = optional (cfg.bts.backend == "trx") "osmo-trx.service";
         requires = [ "network-online.target" ];
+        bindsTo = optional (cfg.bts.backend == "trx") "osmo-trx.service";
         after = [ "network-online.target" "osmo-bsc.service" ];
 
         serviceConfig = {
@@ -96,9 +92,98 @@ in {
           Group = "osmo";
         };
       };
+
+      osmo-sip-connector = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-sip-connector}/bin/osmo-sip-connector -c ${mlib.osmo-formatter.generate "sip-connector.cfg" cfg.sip-connector.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          DynamicUser = false;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
+
+      osmo-stp = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-stp}/bin/osmo-stp -c ${mlib.osmo-formatter.generate "stp.cfg" cfg.stp.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          DynamicUser = true;
+        };
+      };
+
+      osmo-mgw = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-mgw}/bin/osmo-mgw -c ${mlib.osmo-formatter.generate "mgw.cfg" cfg.mgw.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          DynamicUser = true;
+        };
+      };
+
+      osmo-hlr = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-hlr}/bin/osmo-hlr -c ${mlib.osmo-formatter.generate "hlr.cfg" cfg.hlr.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
+
+      osmo-msc = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-msc}/bin/osmo-msc -c ${mlib.osmo-formatter.generate "msc.cfg" cfg.msc.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
+
+      osmo-bsc = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-bsc}/bin/osmo-bsc -c ${mlib.osmo-formatter.generate "bsc.cfg" cfg.bsc.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
     } // listToAttrs (map (name: nameValuePair "osmo-${name}" (service name cfg."${name}".cfg)) services);
 
-    users = mkIf (any (x: cfg."${x}".enable) services) {
+    users = mkIf (any (x: cfg."${x}".enable) [ "bsc" "msc" "hlr" "stp" "mgw" "sip-connector" ]) {
       users.osmo = {
         isSystemUser = true;
         group = "osmo";
