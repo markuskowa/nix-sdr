@@ -109,11 +109,11 @@ with lib;
 
     handleAttrs = settings: indent:
       map (f: if isFunction f then f 1 else f)
-      (sort (x: y: isList y || isFunction x) (mapAttrsToList (name: value:
+      (sort (x: y: isList y) (mapAttrsToList (name: value:
         if isAttrs value
-        then [ "${indent}${name}" (sortAttrs value (indent + " ")) ]
-        else if isFunction value
-        then x: indent + "${name} ${toString (value 1)}"
+        then [ "${indent}${name}" (handleAttrs value (indent + " ")) ]
+        else if isList value
+        then concatStringsSep "\n" (map (x: indent + "${toString x}") value)
         else indent + "${name} ${toString value}"
       ) settings ));
 
@@ -125,8 +125,9 @@ with lib;
         check = x: isFunction x;
       };
       valueType = oneOf [
-        str int function
+        str int
         (attrsOf valueType)
+        (listOf valueType)
       ] // {
         description = "Osmocom configuration files";
       };

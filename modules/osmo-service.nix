@@ -36,35 +36,10 @@ let
 
   services = [
     "cbc"
-    "pcu"
-    "sgsn"
-    "ggsn"
   ];
 
 in {
-  options.services.osmo = {
-    bts = {
-      enable = mkEnableOption "Osmocom BTS";
-
-      backend = mkOption {
-        description = "virtual or trx";
-        type = with types; enum [ "virtual" "trx" ];
-        default = "virtual";
-      };
-
-      cfg = mkOption {
-        description = "Contents of config file";
-        type = types.str;
-        default = null;
-      };
-
-      cfgTrx = mkOption {
-        description = "Contents of osmo-trx config file";
-        type = with types; nullOr str;
-        default = null;
-      };
-    };
-  } // listToAttrs (map (s: nameValuePair s (options s)) services);
+  options.services.osmo = listToAttrs (map (s: nameValuePair s (options s)) services);
 
   config = {
     systemd.services = {
@@ -87,13 +62,13 @@ in {
 
         serviceConfig = {
           Type = "simple";
-          ExecStart = "${pkgs.osmo-bts}/bin/osmo-bts-${cfg.bts.backend} -c ${pkgs.writeText "osmo-bts.cfg" cfg.bts.cfg}";
+          ExecStart = "${pkgs.osmo-bts}/bin/osmo-bts-${cfg.bts.backend} -c ${mlib.osmo-formatter.generate "bts.cfg" cfg.bts.settings}";
           User = "osmo";
           Group = "osmo";
         };
       };
 
-      osmo-sip-connector = {
+      osmo-sip-connector = mkIf cfg.sip-connector.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -109,7 +84,7 @@ in {
         };
       };
 
-      osmo-stp = {
+      osmo-stp = mkIf cfg.stp.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -123,7 +98,7 @@ in {
         };
       };
 
-      osmo-mgw = {
+      osmo-mgw = mkIf cfg.mgw.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -137,7 +112,7 @@ in {
         };
       };
 
-      osmo-hlr = {
+      osmo-hlr = mkIf cfg.hlr.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -152,7 +127,7 @@ in {
         };
       };
 
-      osmo-msc = {
+      osmo-msc = mkIf cfg.msc.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -167,7 +142,7 @@ in {
         };
       };
 
-      osmo-bsc = {
+      osmo-bsc = mkIf cfg.bsc.enable {
         wantedBy = [ "multi-user.target" ];
         wants = [ "network-online.target" ];
         after = [ "network-online.target" ];
@@ -181,9 +156,54 @@ in {
           Group = "osmo";
         };
       };
+
+      osmo-pcu = mkIf cfg.pcu.enable {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-pcu}/bin/osmo-pcu -c ${mlib.osmo-formatter.generate "pcu.cfg" cfg.pcu.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
+
+      osmo-sgsn = mkIf cfg.sgsn.enable {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-sgsn}/bin/osmo-sgsn -c ${mlib.osmo-formatter.generate "sgsn.cfg" cfg.sgsn.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
+
+      osmo-ggsn = mkIf cfg.ggsn.enable {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-ggsn}/bin/osmo-ggsn -c ${mlib.osmo-formatter.generate "ggsn.cfg" cfg.ggsn.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          User = "osmo";
+          Group = "osmo";
+        };
+      };
     } // listToAttrs (map (name: nameValuePair "osmo-${name}" (service name cfg."${name}".cfg)) services);
 
-    users = mkIf (any (x: cfg."${x}".enable) [ "bsc" "msc" "hlr" "stp" "mgw" "sip-connector" ]) {
+    users = mkIf (any (x: cfg."${x}".enable) [ "bsc" "msc" "hlr" "stp" "mgw" "sip-connector" "bts" "pcu" "sgsn" "ggsn"]) {
       users.osmo = {
         isSystemUser = true;
         group = "osmo";

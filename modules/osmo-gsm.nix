@@ -81,6 +81,13 @@ in {
         default = "/var/lib/osmo-hlr/hlr.db";
       };
 
+      enableEdge = mkEnableOption "GRPS/EDGE data service";
+      apn-addr = mkOption {
+        description = "Subnet for GRPS access point";
+        type = types.attrs;
+        default = { address = "10.46.1.1"; prefixLength = 24; };
+      };
+
       enableSIP = mkEnableOption "SIP connector";
     };
 
@@ -210,7 +217,7 @@ in {
             neci = 1;
             handover = 0;
             "bts 0" = {
-              type = x: "osmo-bts";
+              aaa = [ "type osmo-bts" ];
               band = cfg.nitb.band;
               "ipa unit-id" = "10 0";
               cell_identity = 10;
@@ -223,8 +230,18 @@ in {
               "rach tx integer" = 9;
               "rach max transmission" = 7;
               "oml ipa stream-id" = "255 line 0";
-              "gprs mode" = "none";
-            } // listToAttrs (map (n: { name = "trx ${toString n}"; value = {
+              "gprs mode" = if cfg.nitb.enableEdge then "egprs" else "none";
+            } // optionalAttrs cfg.nitb.enableEdge {
+              r = [
+                "gprs routing area 1"
+                "gprs cell bvci 2"
+                "gprs nsei 1"
+                "gprs nsvc 0 nsvci 1"
+                "gprs nsvc 0 local udp port 23001"
+                "gprs nsvc 0 remote udp port 23000"
+                "gprs nsvc 0 remote ip 127.0.0.1"
+              ];
+            }// listToAttrs (map (n: { name = "trx ${toString n}"; value = {
                    rf_locked = 0;
                    arfcn = cfg.nitb.arfcn + n * 4;
                    "rsl e1 tei" = 0;
@@ -247,19 +264,19 @@ in {
                      "hopping enabled" = 0;
                    };
                    "timeslot 4" = {
-                     phys_chan_config = "TCH/F";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 5" = {
-                     phys_chan_config = "TCH/F";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 6" = {
-                     phys_chan_config = "TCH/F";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 7" = {
-                     phys_chan_config = "TCH/F";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
                      "hopping enabled" = 0;
                    };
                   };}) (genList (x: x) cfg.nitb.multiArfcn));
@@ -285,16 +302,143 @@ in {
         };
       };
     };
+
+    pcu = {
+      enable = mkEnableOption "osmo-pcu";
+      settings = mkOption {
+        type = types.submodule {
+          freeformType = mlib.osmo-formatter.type;
+        };
+        default = {
+          pcu = {
+            flow-control-interval = 10;
+            cs = 2;
+            "cs max" = 4;
+            mcs = 2;
+            "mcs max" = 9;
+            alloc-algorithm = "dynamic";
+            gamma = 0;
+
+          };
+        };
+      };
+    };
+
+    sgsn = {
+      enable = mkEnableOption "osmo-sgsn";
+      settings = mkOption {
+        type = types.submodule {
+          freeformType = mlib.osmo-formatter.type;
+        };
+        default = {
+          ns = {
+            "bind udp local" = {
+              listen = "127.0.0.1 23000";
+              accept-ipaccess = "";
+            };
+          };
+          sgsn = {
+            "gtp local-ip" = "127.0.0.1";
+            "gtp state-dir" = "/var/lib/osmo-sgsn";
+            k = [
+              "ggsn 0 remote-ip 127.0.0.2"
+              "ggsn 0 gtp-version 1"
+              # "apn * ggsn ggsn0"
+            ];
+            "encryption uea" = "0 1 2";
+            "encryption gea" = "0";
+            auth-policy = "accept-all";
+            "compression rfc1144" = "passive";
+            "compression v42bis" = "passive";
+          };
+        };
+      };
+    };
+
+    ggsn = {
+      enable = mkEnableOption "osmo-ggsn";
+      settings = mkOption {
+        type = types.submodule {
+          freeformType = mlib.osmo-formatter.type;
+        };
+        default = {
+          "ggsn ggsn0" = {
+            "gtp state-dir" = "/var/lib/osmo-ggsn";
+            "gtp bind-ip" = "127.0.0.2";
+            "apn internet" = {
+              gtpu-mode = "tun";
+              tun-device = "apn-internet";
+              "ip prefix" = "dynamic ${cfg.nitb.apn-addr.address + "/" + toString cfg.nitb.apn-addr.prefixLength}";
+              "ip dns 1" = head config.networking.nameservers;
+              "ip dns 0" = cfg.nitb.apn-addr.address;
+              # "no shutdown" = "";
+            };
+            "no shutdown ggsn" = "";
+          };
+        };
+      };
+    };
+
+    bts = {
+      enable = mkEnableOption "osmo-bts";
+      backend = mkOption {
+        description = "virtual or trx";
+        type = with types; enum [ "virtual" "trx" ];
+        default = "virtual";
+      };
+
+      cfgTrx = mkOption {
+        description = "Contents of osmo-trx config file";
+        type = with types; nullOr str;
+        default = null;
+      };
+
+      settings = mkOption {
+        type = types.submodule {
+          freeformType = mlib.osmo-formatter.type;
+        };
+        default = {
+          "phy 0" = {
+            instance  = 0;
+            "osmotrx ip local" = "127.0.0.253";
+            "osmotrx ip remote" = "127.0.0.254";
+          };
+          "bts 0" = {
+            band = cfg.nitb.band;
+            "ipa unit-id" =  "10 0";
+            "oml remote-ip" = "127.0.0.1";
+            "gsmtap-sapi ccch" = "";
+            "gsmtap-sapi pdtch" = "";
+            "trx 0" = {
+              "phy 0 instance 0" = "";
+            };
+          };
+        };
+      };
+    };
   };
 
+
   config = mkIf cfg.nitb.enable {
+    networking = {
+      interfaces.apn-internet = mkIf cfg.nitb.enableEdge {
+        virtual = true;
+        virtualType = "tun";
+        virtualOwner = "osmo";
+        ipv4.addresses = [ cfg.nitb.apn-addr ];
+      };
+    };
 
     services.osmo =  {
+      bts.enable = true;
       bsc.enable = true;
       msc.enable = true;
       hlr.enable = true;
       mgw.enable = true;
       stp.enable = true;
+      pcu.enable = cfg.nitb.enableEdge;
+      sgsn.enable = cfg.nitb.enableEdge;
+      ggsn.enable = cfg.nitb.enableEdge;
       sip-connector.enable = cfg.nitb.enableSIP;
     };
   };
