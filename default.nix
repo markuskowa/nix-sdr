@@ -91,4 +91,16 @@ with super;
   sdr-dab = callPackage ./sdr-dab { inherit (self.gst_all_1) gstreamer gst-plugins-base; };
 
   waveplus-reader = callPackage ./waveplus-reader { };
+
+  ### Python packages
+  python3 = super.python3.override (old: {
+    packageOverrides = super.lib.composeExtensions (old.packageOverrides or (_: _: { }))
+      (pSelf: pSuper: let
+        callPackage = lib.callPackageWith (self // pSelf);
+      in {
+        osmo-python = callPackage ./osmo-python {};
+        pyhss = callPackage ./pyhss {};
+        pysctp = callPackage ./pysctp {};
+      });
+  });
 }
