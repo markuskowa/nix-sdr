@@ -92,6 +92,8 @@ with super;
 
   waveplus-reader = callPackage ./waveplus-reader { };
 
+  pyhss = super.python3.pkgs.toPythonApplication self.python3.pkgs.pyhss;
+
   ### Python packages
   python3 = super.python3.override (old: {
     packageOverrides = super.lib.composeExtensions (old.packageOverrides or (_: _: { }))
