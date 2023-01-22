@@ -81,7 +81,13 @@ in {
         default = "/var/lib/osmo-hlr/hlr.db";
       };
 
-      enableEdge = mkEnableOption "GRPS/EDGE data service";
+      enableGPRS = mkEnableOption "GRPS/EDGE data service";
+      GPRSType = mkOption {
+        description = "GPRS or EDGE";
+        type = with types; enum [ "gprs" "egprs" ];
+        default = "grps";
+      };
+
       apn-addr = mkOption {
         description = "Subnet for GRPS access point";
         type = types.attrs;
@@ -230,8 +236,8 @@ in {
               "rach tx integer" = 9;
               "rach max transmission" = 7;
               "oml ipa stream-id" = "255 line 0";
-              "gprs mode" = if cfg.nitb.enableEdge then "egprs" else "none";
-            } // optionalAttrs cfg.nitb.enableEdge {
+              "gprs mode" = if cfg.nitb.enableGPRS then cfg.nitb.GPRSType else "none";
+            } // optionalAttrs cfg.nitb.enableGPRS {
               r = [
                 "gprs routing area 1"
                 "gprs cell bvci 2"
@@ -264,19 +270,19 @@ in {
                      "hopping enabled" = 0;
                    };
                    "timeslot 4" = {
-                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableGPRS "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 5" = {
-                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableGPRS "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 6" = {
-                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableGPRS "_PDCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 7" = {
-                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableEdge "_PDCH";
+                     phys_chan_config = "TCH/F" + optionalString cfg.nitb.enableGPRS "_PDCH";
                      "hopping enabled" = 0;
                    };
                   };}) (genList (x: x) cfg.nitb.multiArfcn));
@@ -371,9 +377,7 @@ in {
               "ip prefix" = "dynamic ${cfg.nitb.apn-addr.address + "/" + toString cfg.nitb.apn-addr.prefixLength}";
               "ip dns 1" = head config.networking.nameservers;
               "ip dns 0" = cfg.nitb.apn-addr.address;
-              # "no shutdown" = "";
             };
-            "no shutdown ggsn" = "";
           };
         };
       };
@@ -421,7 +425,7 @@ in {
 
   config = mkIf cfg.nitb.enable {
     networking = {
-      interfaces.apn-internet = mkIf cfg.nitb.enableEdge {
+      interfaces.apn-internet = mkIf cfg.nitb.enableGPRS {
         virtual = true;
         virtualType = "tun";
         virtualOwner = "osmo";
@@ -436,9 +440,9 @@ in {
       hlr.enable = true;
       mgw.enable = true;
       stp.enable = true;
-      pcu.enable = cfg.nitb.enableEdge;
-      sgsn.enable = cfg.nitb.enableEdge;
-      ggsn.enable = cfg.nitb.enableEdge;
+      pcu.enable = cfg.nitb.enableGPRS;
+      sgsn.enable = cfg.nitb.enableGPRS;
+      ggsn.enable = cfg.nitb.enableGPRS;
       sip-connector.enable = cfg.nitb.enableSIP;
     };
   };
