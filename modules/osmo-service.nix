@@ -79,6 +79,7 @@ in {
           Restart = "always";
           RestartSec = 2;
           DynamicUser = false;
+          RestartPreventExitStatus = 2;
           User = "osmo";
           Group = "osmo";
         };
@@ -94,6 +95,7 @@ in {
           ExecStart = "${pkgs.osmo-stp}/bin/osmo-stp -c ${mlib.osmo-formatter.generate "stp.cfg" cfg.stp.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           DynamicUser = true;
         };
       };
@@ -108,6 +110,7 @@ in {
           ExecStart = "${pkgs.osmo-mgw}/bin/osmo-mgw -c ${mlib.osmo-formatter.generate "mgw.cfg" cfg.mgw.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           DynamicUser = true;
         };
       };
@@ -122,6 +125,7 @@ in {
           ExecStart = "${pkgs.osmo-hlr}/bin/osmo-hlr -c ${mlib.osmo-formatter.generate "hlr.cfg" cfg.hlr.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           User = "osmo";
           Group = "osmo";
         };
@@ -137,6 +141,7 @@ in {
           ExecStart = "${pkgs.osmo-msc}/bin/osmo-msc -c ${mlib.osmo-formatter.generate "msc.cfg" cfg.msc.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           User = "osmo";
           Group = "osmo";
         };
@@ -152,8 +157,10 @@ in {
           ExecStart = "${pkgs.osmo-bsc}/bin/osmo-bsc -c ${mlib.osmo-formatter.generate "bsc.cfg" cfg.bsc.settings}";
           Restart = "always";
           RestartSec = 2;
-          User = "osmo";
-          Group = "osmo";
+          RestartPreventExitStatus = 2;
+          DynamicUser = true;
+          # User = "osmo";
+          # Group = "osmo";
         };
       };
 
@@ -167,6 +174,7 @@ in {
           ExecStart = "${pkgs.osmo-pcu}/bin/osmo-pcu -c ${mlib.osmo-formatter.generate "pcu.cfg" cfg.pcu.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           User = "osmo";
           Group = "osmo";
         };
@@ -182,8 +190,8 @@ in {
           ExecStart = "${pkgs.osmo-sgsn}/bin/osmo-sgsn -c ${mlib.osmo-formatter.generate "sgsn.cfg" cfg.sgsn.settings}";
           Restart = "always";
           RestartSec = 2;
-          User = "osmo";
-          Group = "osmo";
+          RestartPreventExitStatus = 2;
+          DynamicUser = true;
         };
       };
 
@@ -197,6 +205,7 @@ in {
           ExecStart = "${pkgs.osmo-ggsn}/bin/osmo-ggsn -c ${mlib.osmo-formatter.generate "ggsn.cfg" cfg.ggsn.settings}";
           Restart = "always";
           RestartSec = 2;
+          RestartPreventExitStatus = 2;
           User = "osmo";
           Group = "osmo";
         };
