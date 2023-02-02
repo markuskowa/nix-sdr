@@ -6,6 +6,8 @@ with super;
 
   airspyAdsb = callPackage ./airspy_adsb {};
 
+  cariboulite-dtbo = callPackage ./libcariboulite/dtbo.nix {};
+
   etisnoop = callPackage ./etisnoop {};
 
   eti-tools = callPackage ./eti-tools {};
@@ -39,6 +41,20 @@ with super;
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
 
   kamailio = callPackage ./kamailio {};
+
+  libcariboulite = callPackage ./libcariboulite {};
+
+  soapysdr-with-plugins = super.soapysdr-with-plugins.override {
+    extraPackages = with self; [
+      libcariboulite
+      limesuite
+      soapyairspy
+      soapyaudio
+      soapybladerf
+      soapyremote
+      soapyrtlsdr
+    ];
+  };
 
   libosmo-abis = callPackage ./libosmo-abis {};
 
