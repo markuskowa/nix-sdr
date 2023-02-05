@@ -1,5 +1,6 @@
 { stdenv, lib, fetchFromGitHub, autoconf, automake, libtool
-, pkg-config, zeromq, fftwFloat, uhd, boost, soapysdr-with-plugins
+, pkg-config, zeromq, fftwFloat, uhd, boost
+, soapysdr-with-plugins, limesuite
 } :
 
 let
@@ -17,7 +18,14 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ autoconf automake libtool pkg-config boost ];
-  buildInputs = [ zeromq fftwFloat uhd boost soapysdr-with-plugins ];
+  buildInputs = [
+    zeromq
+    fftwFloat
+    boost
+    uhd
+    limesuite
+    soapysdr-with-plugins
+  ];
 
   CFLAGS="-O3 -DNDEBUG";
   CXXFLAGS="-O3 -DNDEBUG";
