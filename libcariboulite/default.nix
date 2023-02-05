@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, cmake, soapysdr } :
+{ lib, stdenv, fetchFromGitHub, cmake, soapysdr, zeromq } :
 
 stdenv.mkDerivation {
   pname = "libcariboulite";
@@ -7,13 +7,19 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "cariboulabs";
     repo = "cariboulite";
-    rev = "b9997023341d56698fcf4e693005413a833ee214";
-    sha256 = "sha256-vYWYexLiuVP+6qKX2x0GhPhVDR62MF6S36MtoasvCcU=";
+    rev = "554c39e589ef7b7857ad674fb49ab4d6395cf940";
+    sha256 = "sha256-iIcKQTvH9NpPHOkb/b+BNN/4v3A6HjQDFTtUuJ2JRd8=";
     fetchSubmodules = true;
   };
 
+  postPatch = ''
+    substituteInPlace software/libcariboulite/CMakeLists.txt \
+      --replace "/usr/local/lib" "$out/lib"
+
+  '';
+
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ soapysdr ];
+  buildInputs = [ soapysdr zeromq ];
 
   hardeningDisable = [ "format" ];
 
