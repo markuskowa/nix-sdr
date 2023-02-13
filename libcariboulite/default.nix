@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation {
   pname = "libcariboulite";
-  version = "2023-01-20-unstable";
+  version = "2023-02-13-R1";
 
   src = fetchFromGitHub {
     owner = "cariboulabs";
     repo = "cariboulite";
-    rev = "554c39e589ef7b7857ad674fb49ab4d6395cf940";
-    sha256 = "sha256-iIcKQTvH9NpPHOkb/b+BNN/4v3A6HjQDFTtUuJ2JRd8=";
+    rev = "4f7d58a95e7f5a0494a94d3faaf980d9e80359a9";
+    sha256 = "sha256-y0pYA4il8OXKX5XfWWYdubDdumD15yu4Ip6Ln3jmI+0=";
     fetchSubmodules = true;
   };
 
@@ -16,6 +16,12 @@ stdenv.mkDerivation {
     substituteInPlace software/libcariboulite/CMakeLists.txt \
       --replace "/usr/local/lib" "$out/lib"
 
+    substituteInPlace software/libcariboulite/CMakeLists.txt \
+      --replace ' ''${BIN_DEST}/lib/' " $out/lib" \
+      --replace ' ''${BIN_DEST}/bin/' " $out/bin"
+
+    sed -i '/PREFIX ""/d' software/libcariboulite/CMakeLists.txt
+    sed -i '/DESTINATION ''${SOAPY_DEST}/d' software/libcariboulite/CMakeLists.txt
   '';
 
   nativeBuildInputs = [ cmake ];
@@ -36,8 +42,8 @@ stdenv.mkDerivation {
 
   preFixup = ''
     # Clear rpath to avoid refs to /build/
-    patchelf --set-rpath $(patchelf --print-rpath $out/bin/cariboulite_app | sed 's|.*/build/src/iir:||') $out/bin/cariboulite_app
-    patchelf --set-rpath $(patchelf --print-rpath $out/bin/cariboulite_prod | sed 's|.*/build/src/iir:||') $out/bin/cariboulite_prod
+    patchelf --set-rpath $(patchelf --print-rpath $out/bin/cariboulite_test_app | sed 's|.*/build/.*:||') $out/bin/cariboulite_test_app
+    patchelf --set-rpath $(patchelf --print-rpath $out/bin/cariboulite_util | sed 's|.*/build/.*:||') $out/bin/cariboulite_util
   '';
 
   meta = with lib; {
