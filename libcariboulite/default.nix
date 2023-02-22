@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation {
   pname = "libcariboulite";
-  version = "2023-02-13-R1";
+  version = "2023-02-16";
 
   src = fetchFromGitHub {
     owner = "cariboulabs";
     repo = "cariboulite";
-    rev = "4f7d58a95e7f5a0494a94d3faaf980d9e80359a9";
-    sha256 = "sha256-y0pYA4il8OXKX5XfWWYdubDdumD15yu4Ip6Ln3jmI+0=";
+    rev = "9e6ff58b78a9b03f9937e7d90c45e85f933988a0";
+    sha256 = "sha256-Yjzffr2sDAxTuMYa1Ba2ZmLmMrP8OxdInic1zi862ys=";
     fetchSubmodules = true;
   };
 
