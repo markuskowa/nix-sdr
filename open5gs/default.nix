@@ -26,13 +26,13 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "open5gs";
-  version = "2.5.8";
+  version = "2.5.9";
 
   src = fetchFromGitHub {
     owner = "open5gs";
     repo = "open5gs";
     rev = "v${version}";
-    sha256 = "sha256-qpbB4yhCrRRipuU44Tfna9eJnlJO9Cs3B2gx6Xpp8Y8=";
+    sha256 = "sha256-0vEM8v2sz5fEls00Q3m3SiCQXFvHrw5uWSCOrMZnbOM=";
   };
 
   postPatch = ''
