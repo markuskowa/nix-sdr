@@ -6,12 +6,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-trx";
-  version = "1.4.1";
+  version = "1.5.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-trx";
     rev = version;
-    sha256 = "sha256-HEjThhU2+ofXOaQK2prRrbcQi4W8XDkx7yFChc490YI=";
+    sha256 = "sha256-0S9lZlGwwNXJ3OKF6+A3a8iebyNosiRs/8pqW4CCCdg=";
   };
 
   nativeBuildInputs = [
@@ -19,9 +19,13 @@ stdenv.mkDerivation rec {
     pkg-config
   ];
 
+  configureFlags = [
+    "--with-lms"
+    "--with-ipc"
+  ];
+
   preConfigure = ''
-    export configureFlagsArray=("--with-systemdsystemunitdir=$out/lib/systemd"
-        "--with-lms" "--with-ipc")
+    export configureFlagsArray=("--with-systemdsystemunitdir=$out/lib/systemd")
   '';
 
   buildInputs = [
