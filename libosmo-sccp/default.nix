@@ -5,12 +5,12 @@
 
 stdenv.mkDerivation rec {
   pname = "libosmo-sccp";
-  version = "1.6.0";
+  version = "1.7.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/osmocom/libosmo-sccp";
     rev = version;
-    sha256 = "sha256-jXfYMdgpeLcQIxbi2WkG0CAWvwaqBE3yPmqA9eTWdL0=";
+    sha256 = "sha256-ScJZke9iNmFc9XXqtRjb24ZzKfa5EYws5PDNhcZFb7U=";
   };
 
   postPatch = ''
