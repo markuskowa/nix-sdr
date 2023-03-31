@@ -1,16 +1,16 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, libosmocore, libosmo-abis
+, libosmocore, libosmo-abis, libosmo-netif
 }:
 
 
 stdenv.mkDerivation rec {
   pname = "osmo-bts";
-  version = "1.5.0";
+  version = "1.6.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-bts";
     rev = version;
-    sha256 = "sha256-DnpzcV51LYVo+fGHph3jWehwwqG1DTKOQeGkK8Jbavw=";
+    sha256 = "sha256-RSWXWQn3DAPtThUbthyXrSFSQhHzKaH/m1f6/MCojzM=";
   };
 
   preConfigure = ''
@@ -27,6 +27,7 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libosmocore
     libosmo-abis
+    libosmo-netif
   ];
 
   meta = with lib; {
