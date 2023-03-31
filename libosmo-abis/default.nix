@@ -5,12 +5,12 @@
 
 stdenv.mkDerivation rec {
   pname = "libosmo-abis";
-  version = "1.3.0";
+  version = "1.4.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/osmocom/libosmo-abis";
     rev = version;
-    sha256 = "sha256-dBiYrquyA+vsb7T56fNVvVa+j966mfm0kKwarzBsWvw=";
+    sha256 = "sha256-RKJis0Ur3Y0LximNQl+hm6GENg8t2E1S++2c+63D2pQ=";
   };
 
   postPatch = ''
