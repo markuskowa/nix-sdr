@@ -4,12 +4,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-sip-connector";
-  version = "1.6.1";
+  version = "1.6.2";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-sip-connector";
     rev = version;
-    sha256 = "sha256-hFJ3rkgPKqiiOaqhmiOfiHLfFWJ/oouyp3c1joQiNCc=";
+    sha256 = "sha256-vsPtNeh6Yi5fQb+E90OF4/Hnjl9T5nMf9EMBhzpIA2I=";
   };
 
   postPatch = ''
