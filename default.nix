@@ -102,6 +102,8 @@ with super;
 
   rtl-sdr-kerberos = callPackage ./rtl-sdr-kerberos {};
 
+  rtl-sdr-scanner-cpp = callPackage ./rtl-sdr-scanner-cpp {};
+
   rx_tools = callPackage ./rx_tools {};
 
   sdr-dab = callPackage ./sdr-dab { inherit (self.gst_all_1) gstreamer gst-plugins-base; };
