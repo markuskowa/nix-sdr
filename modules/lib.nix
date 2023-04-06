@@ -104,26 +104,43 @@ with lib;
 
   # Formatter for Osmocon config files
   osmo-formatter = let
+    defaultPrio = 255;
     settingsToCfg = settings:
-      concatStringsSep "\n" (flatten (handleAttrs settings ""));
+      concatStringsSep "\n" (flatten (cleanListAttrs (handleAttrs (prioSet settings) "")));
 
-    handleAttrs = settings: indent:
-      map (f: if isFunction f then f 1 else f)
-      (sort (x: y: isList y) (mapAttrsToList (name: value:
-        if isAttrs value
-        then [ "${indent}${name}" (handleAttrs value (indent + " ")) ]
-        else if isList value
-        then concatStringsSep "\n" (map (x: indent + "${toString x}") value)
-        else indent + "${name} ${toString value}"
-      ) settings ));
+    # Clean up list/attr structure
+    cleanListAttrs = map (x:
+        if isAttrs x
+        then if isList x._v
+          then cleanListAttrs x._v
+          else x._v
+        else if isList x
+          then cleanListAttrs x
+          else x);
+
+    # transfrom into uniform ordered set
+    prioSet = mapAttrs (name: value:
+           if isAttrs value then
+             if value ? _p && value ? _v then
+               if isAttrs value._v
+               then { inherit (value) _p; _v = prioSet value._v; }
+               else value
+             else { _p = defaultPrio; _v = prioSet value; }
+           else { _p = defaultPrio; _v = value; });
+
+    # transform values
+    handleAttrs = pAttrs: indent:
+      sort (x: y: x._p < y._p) (mapAttrsToList (name: value:
+        if isAttrs value._v
+        then { inherit (value) _p; _v = ["${indent}${name}" (handleAttrs value._v (indent + " "))]; }
+        else
+          if isList value._v
+          then { inherit (value) _p; _v = concatStringsSep " " (map (x: indent + "${toString x}") value._v); }
+          else { inherit (value) _p; _v = indent + "${name} ${toString value._v}"; }
+    ) pAttrs);
 
   in {
     type = with types; let
-      # this is a dummy type to sort entries to the top
-      function = mkOptionType {
-        name = "function";
-        check = x: isFunction x;
-      };
       valueType = oneOf [
         str int
         (attrsOf valueType)
@@ -133,6 +150,7 @@ with lib;
       };
     in valueType;
 
+    mkPrio = p: v: { _p = p; _v = v; };
     generate = name: settings:
       pkgs.writeText name (settingsToCfg settings);
   };

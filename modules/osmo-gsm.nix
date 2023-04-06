@@ -105,7 +105,7 @@ in {
         };
         default = {
           app = {};
-          mncc = { socket-path = "/tmp/msc_mncc"; };
+          mncc.socket-path = "/tmp/msc_mncc";
           sip = {
             local = "127.0.0.1 7060";
             remote = "127.0.0.1 5060";
@@ -214,16 +214,16 @@ in {
         type = types.submodule {
           freeformType = mlib.osmo-formatter.type;
         };
-        default = {
+        default = with mlib.osmo-formatter; {
           e1_input."e1_line 0" = "driver ipa";
-          network = {
-            "network country code" = cfg.nitb.mcc;
-            "mobile network code" = cfg.nitb.mnc;
-            encryption = "a5 0 1 3";
-            neci = 1;
-            handover = 0;
+          network = mkPrio 254 {
+            "network country code" = mkPrio 1 cfg.nitb.mcc;
+            "mobile network code" =  mkPrio 2 cfg.nitb.mnc;
+            encryption = mkPrio 3 "a5 0 1 3";
+            neci = mkPrio 4 1;
+            handover =  mkPrio 5 0;
             "bts 0" = {
-              aaa = [ "type osmo-bts" ];
+              type = mkPrio 10 "osmo-bts";
               band = cfg.nitb.band;
               "ipa unit-id" = "10 0";
               cell_identity = 10;
@@ -236,18 +236,15 @@ in {
               "rach tx integer" = 9;
               "rach max transmission" = 7;
               "oml ipa stream-id" = "255 line 0";
-              "gprs mode" = if cfg.nitb.enableGPRS then cfg.nitb.GPRSType else "none";
-            } // optionalAttrs cfg.nitb.enableGPRS {
-              r = [
-                "gprs routing area 1"
-                "gprs cell bvci 2"
-                "gprs nsei 1"
-                "gprs nsvc 0 nsvci 1"
-                "gprs nsvc 0 local udp port 23001"
-                "gprs nsvc 0 remote udp port 23000"
-                "gprs nsvc 0 remote ip 127.0.0.1"
-              ];
-            }// listToAttrs (map (n: { name = "trx ${toString n}"; value = {
+              "gprs mode" = mkPrio 256 (if cfg.nitb.enableGPRS then cfg.nitb.GPRSType else "none");
+              "gprs routing area" = mkIf cfg.nitb.enableGPRS (mkPrio 257 1);
+              "gprs cell bvci" = mkIf cfg.nitb.enableGPRS (mkPrio 257 2);
+              "gprs nsei" = mkIf cfg.nitb.enableGPRS (mkPrio 257 1);
+              "gprs nsvc 0 nsvci" = mkIf cfg.nitb.enableGPRS (mkPrio 257 1);
+              "gprs nsvc 0 local udp port" = mkIf cfg.nitb.enableGPRS (mkPrio 257 23001);
+              "gprs nsvc 0 remote udp port" = mkIf cfg.nitb.enableGPRS (mkPrio 257 23000);
+              "gprs nsvc 0 remote ip" = mkIf cfg.nitb.enableGPRS (mkPrio 257 "127.0.0.1");
+            } // listToAttrs (map (n: { name = "trx ${toString n}"; value = mkPrio 258 {
                    rf_locked = 0;
                    arfcn = cfg.nitb.arfcn + n * 4;
                    "rsl e1 tei" = 0;
@@ -324,7 +321,6 @@ in {
             "mcs max" = 9;
             alloc-algorithm = "dynamic";
             gamma = 0;
-
           };
         };
       };
@@ -336,7 +332,7 @@ in {
         type = types.submodule {
           freeformType = mlib.osmo-formatter.type;
         };
-        default = {
+        default = with mlib.osmo-formatter; {
           ns = {
             "bind udp local" = {
               listen = "127.0.0.1 23000";
@@ -346,17 +342,17 @@ in {
           sgsn = {
             "gtp local-ip" = "127.0.0.1";
             "gtp state-dir" = "/var/lib/osmo-sgsn";
-            k = [
-              "ggsn 0 remote-ip 127.0.0.2"
-              "ggsn 0 gtp-version 1"
-              # "apn * ggsn ggsn0"
-            ];
-            "encryption uea" = "0 1 2";
-            "encryption gea" = "0";
+            "ggsn 0 remote-ip" = mkPrio 256 "127.0.0.2";
+            "ggsn 0 gtp-version" = mkPrio 256 1;
+            "ggsn 0 echo-interval" = mkPrio 256 60;
+            # "apn * ggsn" = mkPrio 257 "ggsn0";
+            # "encryption uea" = "0 1 2";
+            # "encryption gea" = "0";
             auth-policy = "accept-all";
-            "compression rfc1144" = "passive";
-            "compression v42bis" = "passive";
+            # "compression rfc1144" = "passive";
+            # "compression v42bis" = "passive";
           };
+          bssgp = {};
         };
       };
     };
@@ -401,16 +397,16 @@ in {
         type = types.submodule {
           freeformType = mlib.osmo-formatter.type;
         };
-        default = {
-          "phy 0" = {
-            instance  = 0;
+        default = with mlib.osmo-formatter; {
+          "phy 0" = mkPrio 1 {
+            instance = 0;
             "osmotrx ip local" = "127.0.0.253";
             "osmotrx ip remote" = "127.0.0.254";
           };
-          "bts 0" = {
-            band = cfg.nitb.band;
-            "ipa unit-id" =  "10 0";
-            "oml remote-ip" = "127.0.0.1";
+          "bts 0" = mkPrio 2 {
+            band = mkPrio 1 cfg.nitb.band;
+            "ipa unit-id" = mkPrio 2 "10 0";
+            "oml remote-ip" = mkPrio 3 "127.0.0.1";
             "gsmtap-sapi ccch" = "";
             "gsmtap-sapi pdtch" = "";
             "trx 0" = {
@@ -434,7 +430,7 @@ in {
     };
 
     services.osmo =  {
-      bts.enable = true;
+      bts.enable = mkDefault true;
       bsc.enable = true;
       msc.enable = true;
       hlr.enable = true;
