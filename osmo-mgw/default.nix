@@ -5,12 +5,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-mgw";
-  version = "1.10.0";
+  version = "1.11.1";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-mgw";
     rev = version;
-    sha256 = "sha256-jFvKLC0V0lcxdFB2j3wXjPmhR+jHHvNUCHfo/FCAuuA=";
+    sha256 = "sha256-l7JBAigcqQdb1IIz2iuetK8EKVkevtei7hB98g4a79Y=";
   };
 
   postPatch = ''

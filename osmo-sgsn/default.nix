@@ -5,12 +5,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-sgsn";
-  version = "1.9.0";
+  version = "1.10.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-sgsn";
     rev = version;
-    sha256 = "sha256-CVmgHlY/T3kDMV5jJRf62ZoLAC9QXBrWYUc4WKB7A+c=";
+    sha256 = "sha256-tjExV8XigPEZ5gOCEoWfjhtGJVa5Ja3GHnpSovradak=";
   };
 
   nativeBuildInputs = [

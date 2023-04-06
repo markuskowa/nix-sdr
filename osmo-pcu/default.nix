@@ -4,12 +4,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-pcu";
-  version = "1.1.0";
+  version = "1.2.0";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-pcu";
     rev = version;
-    sha256 = "sha256-40J/Jr5nDRcglJ+uYGo6c7KHTuDN9dxdazIJR4/MHlM=";
+    sha256 = "sha256-wZLTDvqVxP0FXV0VQH5KuigwbgzBipwL5JkTDp5Mzrc=";
   };
 
   nativeBuildInputs = [
