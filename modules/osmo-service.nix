@@ -191,7 +191,8 @@ in {
           Restart = "always";
           RestartSec = 2;
           RestartPreventExitStatus = 2;
-          DynamicUser = true;
+          User = "osmo";
+          Group = "osmo";
         };
       };
 
