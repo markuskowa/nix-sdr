@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "kamailio";
-  version = "5.6.2";
+  version = "5.6.4";
 
   src = fetchFromGitHub {
     owner = "kamailio";
     repo = "kamailio";
     rev = version;
-    sha256 = "sha256-jxFAc1PRGcQKEBy8I+YIGtLMGXEkOEPoWmY66bdn4Pg=";
+    sha256 = "sha256-wmkWPKEdDzM9nNaLg3GsoKTn0UNQzQ6DfreeIDn0jgI=";
   };
 
   patches = [ ./kamctl.patch ];
