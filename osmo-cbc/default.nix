@@ -1,7 +1,7 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
 , talloc, libosmocore, libosmo-abis, libosmo-netif
 , libulfius, sqlite, jansson, gnutls, zlib, libmicrohttpd
-, python3
+, python3, lksctp-tools
 }:
 
 let
@@ -9,12 +9,12 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "osmo-cbc";
-  version = "0.3.0";
+  version = "0.4.1";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-cbc";
     rev = version;
-    sha256 = "sha256-RqF+2Ua862LeDcuVcLUg2uNLglEF9PxEY1cEHKoIGOw=";
+    sha256 = "sha256-Seaxwx9n7pkCIcpHN3ekdOYYlnhpjpPzHXuAe2CN6Tg=";
   };
 
   postPatch = ''
@@ -30,6 +30,7 @@ in stdenv.mkDerivation rec {
     libosmocore
     libosmo-abis
     libosmo-netif
+    lksctp-tools
     libulfius
     jansson
     zlib
