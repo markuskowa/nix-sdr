@@ -228,7 +228,7 @@ in {
               "ipa unit-id" = "10 0";
               cell_identity = 10;
               location_area_code = 1;
-              base_station_id_code = 63;
+              base_station_id_code = 10;
               "ms max power" = 15;
               "cell reselection hysteresis" = 4;
               "rxlev access min" = 0;
@@ -345,7 +345,7 @@ in {
             "ggsn 0 remote-ip" = mkPrio 256 "127.0.0.2";
             "ggsn 0 gtp-version" = mkPrio 256 1;
             "ggsn 0 echo-interval" = mkPrio 256 60;
-            # "apn * ggsn" = mkPrio 257 "ggsn0";
+            "apn internet ggsn" = mkPrio 257 "0";
             # "encryption uea" = "0 1 2";
             # "encryption gea" = "0";
             auth-policy = "accept-all";
@@ -363,17 +363,20 @@ in {
         type = types.submodule {
           freeformType = mlib.osmo-formatter.type;
         };
-        default = {
-          "ggsn ggsn0" = {
+        default = with mlib.osmo-formatter; {
+          "ggsn 0" = {
             "gtp state-dir" = "/var/lib/osmo-ggsn";
             "gtp bind-ip" = "127.0.0.2";
-            "apn internet" = {
+            "apn internet" = mkPrio 256 {
               gtpu-mode = "tun";
               tun-device = "apn-internet";
               "ip prefix" = "dynamic ${cfg.nitb.apn-addr.address + "/" + toString cfg.nitb.apn-addr.prefixLength}";
               "ip dns 1" = head config.networking.nameservers;
               "ip dns 0" = cfg.nitb.apn-addr.address;
+              "no shutdown" = mkPrio 256 "";
             };
+           "default-apn" = mkPrio 300 "internet";
+           "no shutdown" = mkPrio 300 "ggsn";
           };
         };
       };
