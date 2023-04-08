@@ -26,13 +26,13 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "open5gs";
-  version = "2.5.9";
+  version = "2.6.2";
 
   src = fetchFromGitHub {
     owner = "open5gs";
     repo = "open5gs";
     rev = "v${version}";
-    sha256 = "sha256-0vEM8v2sz5fEls00Q3m3SiCQXFvHrw5uWSCOrMZnbOM=";
+    sha256 = "sha256-gNMf/tRiXFXvjPTPTYEyc0Cx73lfJskr+kUoSQo8TR8=";
   };
 
   postPatch = ''
@@ -52,7 +52,10 @@ in stdenv.mkDerivation rec {
   mesonFlags = [ "-Dwerror=false" "--buildtype=release"];
 
   # Fails in libtins (DHCPv6)
-  NIX_CFLAGS_COMPILE = "-Wno-error=array-bounds";
+  env.NIX_CFLAGS_COMPILE = builtins.toString [
+    "-Wno-error=array-bounds"
+    "-Wno-error=stringop-overflow"
+  ];
 
   buildInputs = [
     talloc
