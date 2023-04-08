@@ -176,6 +176,39 @@ in {
       };
     };
 
+
+    cbc = {
+      enable = mkEnableOption "osmo-cbc";
+      settings = mkOption {
+        type = types.submodule {
+          freeformType = mlib.osmo-formatter.type;
+        };
+        default = with mlib.osmo-formatter; {
+          cbc = {
+            unknown-peers = mkPrio 1 "reject";
+            cbsp = mkPrio 2 {
+              "local-ip" = "127.0.0.1";
+              "local-port" = 48049;
+            };
+            sbcap = mkPrio 2 {
+              local-ip = "127.0.0.1";
+              local-port = 29168;
+            };
+
+            ecbe = mkPrio 3 {
+              "local-ip" = "127.0.0.1";
+              "local-port" = 8084;
+            };
+            "peer cbsp nitb-bsc" = mkPrio 14 {
+              mode = "server";
+              remote-ip = "127.0.0.1";
+              remote-port = "46133";
+            };
+          };
+        };
+      };
+    };
+
     msc = {
       enable = mkEnableOption "osmo-msc";
       settings = mkOption {
@@ -216,6 +249,16 @@ in {
         };
         default = with mlib.osmo-formatter; {
           e1_input."e1_line 0" = "driver ipa";
+
+          cbc = mkPrio 2 {
+            mode = "client";
+            client = {
+              remote-ip = "127.0.0.1";
+              local-ip = "127.0.0.1";
+              local-port = 46133;
+            };
+          };
+
           network = mkPrio 254 {
             "network country code" = mkPrio 1 cfg.nitb.mcc;
             "mobile network code" =  mkPrio 2 cfg.nitb.mnc;
@@ -251,7 +294,7 @@ in {
                    "nominal power" = 23;
                    max_power_red = cfg.nitb.maxPowerReduction;
                    "timeslot 0" = {
-                     phys_chan_config = "CCCH+SDCCH4";
+                     phys_chan_config = "CCCH+SDCCH4+CBCH";
                      "hopping enabled" = 0;
                    };
                    "timeslot 1" = {
@@ -432,17 +475,20 @@ in {
       };
     };
 
+    environment.systemPackages = [ pkgs.osmo-cbc ];
+
     services.osmo =  {
       bts.enable = mkDefault true;
-      bsc.enable = true;
-      msc.enable = true;
-      hlr.enable = true;
-      mgw.enable = true;
-      stp.enable = true;
-      pcu.enable = cfg.nitb.enableGPRS;
-      sgsn.enable = cfg.nitb.enableGPRS;
-      ggsn.enable = cfg.nitb.enableGPRS;
-      sip-connector.enable = cfg.nitb.enableSIP;
+      bsc.enable = mkDefault true;
+      cbc.enable = mkDefault true;
+      msc.enable = mkDefault true;
+      hlr.enable = mkDefault true;
+      mgw.enable = mkDefault true;
+      stp.enable = mkDefault true;
+      pcu.enable = mkDefault cfg.nitb.enableGPRS;
+      sgsn.enable = mkDefault cfg.nitb.enableGPRS;
+      ggsn.enable = mkDefault cfg.nitb.enableGPRS;
+      sip-connector.enable = mkDefault cfg.nitb.enableSIP;
     };
   };
 }

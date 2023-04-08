@@ -34,10 +34,7 @@ let
     };
   };
 
-  services = [
-    "cbc"
-  ];
-
+  services = [];
 in {
   options.services.osmo = listToAttrs (map (s: nameValuePair s (options s)) services);
 
@@ -155,6 +152,23 @@ in {
         serviceConfig = {
           Type = "simple";
           ExecStart = "${pkgs.osmo-bsc}/bin/osmo-bsc -c ${mlib.osmo-formatter.generate "bsc.cfg" cfg.bsc.settings}";
+          Restart = "always";
+          RestartSec = 2;
+          RestartPreventExitStatus = 2;
+          DynamicUser = true;
+          # User = "osmo";
+          # Group = "osmo";
+        };
+      };
+
+      osmo-cbc = mkIf cfg.cbc.enable {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.osmo-cbc}/bin/osmo-cbc -c ${mlib.osmo-formatter.generate "cbc.cfg" cfg.cbc.settings}";
           Restart = "always";
           RestartSec = 2;
           RestartPreventExitStatus = 2;
