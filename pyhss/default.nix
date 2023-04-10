@@ -2,12 +2,13 @@
 , redis, construct, pycryptodome, pycryptodomex
 , pyyaml, pysctp, jinja2, sqlalchemy, flask
 , grequests, mysqlclient, prometheus-client
-, systemd, sqlalchemy-utils }:
+, systemd, sqlalchemy-utils, flask-restx
+, alchemyjsonschema }:
 
 
 buildPythonPackage rec {
   pname = "pyhss";
-  version = "unstable-2023-01-17";
+  version = "2023.01.17";
 
   src = fetchFromGitHub {
     owner = "nickvsnetworking";
@@ -21,10 +22,14 @@ buildPythonPackage rec {
     setuptools.setup(
         name = "${pname}",
         version = "${version}",
-        packages = setuptools.find_packages(),
+        package_dir = { "": "lib" },
         scripts = [ 'hss.py' ]
     )
     EOF
+
+    # need to be in the same package
+    mv diameter.py lib/
+    mv database.py lib/
   '';
 
   propagatedBuildInputs = [
@@ -38,7 +43,9 @@ buildPythonPackage rec {
     jinja2
     sqlalchemy
     sqlalchemy-utils
+    alchemyjsonschema
     flask
+    flask-restx
     grequests
     mysqlclient
     prometheus-client
@@ -51,6 +58,14 @@ buildPythonPackage rec {
 
     sed -i '1s:^:#!/usr/bin/env nix-shell\n:' $out/bin/hss.py
     sed -i "2s:^:#!nix-shell -i python -p $out\n:" $out/bin/hss.py
+
+    cp PyHSS_API.py $out/bin
+    cat > $out/bin/PyHSS_API <<EOF
+    #!/usr/bin/env nix-shell
+    #!nix-shell -i bash -p $out
+    ${flask}/bin/flask -A $out/bin/PyHSS_API.py run --host=127.0.0.1 --port 8080
+    EOF
+    chmod +x $out/bin/PyHSS_API
   '';
 
   meta = with lib; {
