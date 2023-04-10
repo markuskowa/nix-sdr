@@ -4,13 +4,13 @@
 
 stdenv.mkDerivation rec {
   pname = "srsran";
-  version = "unstable-2022-12-20-limesdr";
+  version = "unstable-2023-03-23-limesdr";
 
   src = fetchFromGitHub {
     owner = "herlesupreeth";
     repo = "srsRAN";
-    rev = "b07aa314608bbb45ae4080f9e53f6fbeeda6d992";
-    sha256 = "sha256-ftAFFLO/j9A48MnnfygltfxCuz5cRnnUW+S+WTyF0q8=";
+    rev = "10f81ca03684efd110557814db17ac2a668342ef";
+    sha256 = "sha256-qEimZZe1U9a3NPkTkdBjiiOxSGNVMixrboN0nh/aeJY=";
   };
 
   nativeBuildInputs = [ cmake pkg-config ];
