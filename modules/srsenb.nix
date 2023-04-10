@@ -73,6 +73,8 @@ in {
       serviceConfig = {
         Type = "simple";
         ExecStart = "${cfg.package}/bin/srsenb ${formatter.generate "enb.conf" cfg.settings}";
+        CPUSchedulingPolicy = "rr";
+        CPUSchedulingPriority = 50;
       };
     };
   };
