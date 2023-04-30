@@ -163,8 +163,11 @@ in {
 
     # SMF/PGW-C
     services.open5gs.smf.settings = mkIf cfg.smf.enable (makeDefaults {
+      sbi = {
+        server.no_tls = true;
+        client.no_tls = true;
+      };
       smf = {
-        sbi = [{ addr = cfg.net.addr.smf; port = 7777; }];
         pfcp = [{ addr = cfg.net.addr.smf; }];
         gtpc = [{ addr = cfg.net.addr.smf; }];
         gtpu = [{ addr = cfg.net.addr.smf; }];
