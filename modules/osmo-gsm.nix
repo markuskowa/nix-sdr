@@ -433,6 +433,12 @@ in {
         default = "virtual";
       };
 
+      device = mkOption {
+        description = "osmo-trx device type";
+        type = types.enum [ "lms" "blade" "ipc" ];
+        default = "lms";
+      };
+
       cfgTrx = mkOption {
         description = "Contents of osmo-trx config file";
         type = with types; nullOr str;

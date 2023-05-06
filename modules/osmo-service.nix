@@ -47,7 +47,7 @@ in {
 
         serviceConfig = {
           Type = "simple";
-          ExecStart = "${pkgs.osmo-trx}/bin/osmo-trx-lms -C ${pkgs.writeText "osmo-trx-lms.cfg" cfg.bts.cfgTrx}";
+          ExecStart = "${pkgs.osmo-trx}/bin/osmo-trx-${cfg.bts.device} -C ${pkgs.writeText "osmo-trx.cfg" cfg.bts.cfgTrx}";
         };
       };
 
