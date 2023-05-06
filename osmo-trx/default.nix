@@ -23,7 +23,7 @@ stdenv.mkDerivation rec {
     "--with-bladerf"
     "--with-lms"
     "--with-ipc"
-  ];
+  ] ++ lib.optional stdenv.isAarch64 "--with-vfpv4";
 
   preConfigure = ''
     export configureFlagsArray=("--with-systemdsystemunitdir=$out/lib/systemd")
