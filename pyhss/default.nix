@@ -8,7 +8,7 @@
 
 buildPythonPackage rec {
   pname = "pyhss";
-  version = "2023.01.17";
+  version = "2023.04.27";
 
   src = fetchFromGitHub {
     owner = "nickvsnetworking";
@@ -54,10 +54,9 @@ buildPythonPackage rec {
   doCheck = false;
 
   postInstall = ''
-    mkdir -p $out/bin
+    mkdir -p $out/bin $out/share/pyhss
 
-    sed -i '1s:^:#!/usr/bin/env nix-shell\n:' $out/bin/hss.py
-    sed -i "2s:^:#!nix-shell -i python -p $out\n:" $out/bin/hss.py
+    sed -i '1s:^:#!/usr/bin/python3\n:' $out/bin/hss.py
 
     cp PyHSS_API.py $out/bin
     cat > $out/bin/PyHSS_API <<EOF
@@ -66,6 +65,9 @@ buildPythonPackage rec {
     ${flask}/bin/flask -A $out/bin/PyHSS_API.py run --host=127.0.0.1 --port 8080
     EOF
     chmod +x $out/bin/PyHSS_API
+
+    cp default_ifc.xml $out/share/pyhss
+    cp default_sh_user_data.xml $out/share/pyhss
   '';
 
   meta = with lib; {

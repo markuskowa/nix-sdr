@@ -118,6 +118,9 @@ with super;
       (pSelf: pSuper: let
         callPackage = lib.callPackageWith (self // pSelf);
       in {
+        alchemyjsonschema = callPackage ./alchemyjsonschema {};
+        dictknife = callPackage ./dictknife {};
+        magicalimport = callPackage ./magicalimport {};
         osmo-python = callPackage ./osmo-python {};
         pyhss = callPackage ./pyhss {};
         pysctp = callPackage ./pysctp {};
