@@ -1,6 +1,6 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore
-, libusb1, limesuite, fftwFloat
+, talloc, libosmocore, fftwFloat
+, libusb1, limesuite, libbladeRF
 }:
 
 
@@ -20,6 +20,7 @@ stdenv.mkDerivation rec {
   ];
 
   configureFlags = [
+    "--with-bladerf"
     "--with-lms"
     "--with-ipc"
   ];
@@ -32,6 +33,7 @@ stdenv.mkDerivation rec {
     libosmocore
     libusb1
     limesuite
+    libbladeRF
     fftwFloat
   ];
 
