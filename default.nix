@@ -44,7 +44,7 @@ with super;
 
   libcariboulite = callPackage ./libcariboulite {};
 
-  soapysdr-with-plugins = super.soapysdr-with-plugins.override {
+  soapysdr-with-plugins-caribou = super.soapysdr-with-plugins.override {
     extraPackages = with self; [
       libcariboulite
       limesuite
