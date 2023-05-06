@@ -111,13 +111,13 @@ in {
 
     # Setup EPC
     services.open5gs = {
-      hss.enable = true;
+      hss.enable = mkDefault true;
       mme.enable = true;
       sgwc.enable = true;
       sgwu .enable = true;
       smf.enable = true;
       upf.enable = true;
-      pcrf.enable = true;
+      pcrf.enable = mkDefault true;
     };
 
     # Setup SRSRAN eNodeB
