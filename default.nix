@@ -18,6 +18,10 @@ with super;
 
   fdk_aacDab = callPackage ./fdk-aac {};
 
+  fdk-aac-hdc = callPackage ./fdk-aac/hdc.nix {};
+
+  gr-nrsc5 = gnuradio3_9.pkgs.callPackage ./gr-nrsc5 {};
+
   ggwave = callPackage ./ggwave {};
 
   libfec = callPackage ./libfec {};
