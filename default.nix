@@ -26,6 +26,8 @@ with super;
 
   nexus433 = callPackage ./nexus433 {};
 
+  nrsc5-latest = callPackage ./nrsc5 {};
+
   odrAudioEnc = callPackage ./odrAudioEnc {};
 
   odrDabMod = callPackage ./odrDabMod {};
