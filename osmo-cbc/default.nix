@@ -1,5 +1,5 @@
 { lib, stdenv, fetchgit, autoreconfHook, pkg-config
-, talloc, libosmocore, libosmo-abis, libosmo-netif
+, talloc, libosmocore, libosmoabis, libosmo-netif
 , libulfius, sqlite, jansson, gnutls, zlib, libmicrohttpd
 , python3, lksctp-tools
 }:
@@ -28,7 +28,7 @@ in stdenv.mkDerivation rec {
 
   buildInputs = [
     libosmocore
-    libosmo-abis
+    libosmoabis
     libosmo-netif
     lksctp-tools
     libulfius

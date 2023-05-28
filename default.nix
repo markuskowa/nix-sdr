@@ -62,12 +62,6 @@ with super;
     ];
   };
 
-  libosmo-abis = callPackage ./libosmo-abis {};
-
-  libosmo-netif = callPackage ./libosmo-netif {};
-
-  libosmo-sccp = callPackage ./libosmo-sccp {};
-
   libulfius = callPackage ./libulfius {};
 
   free-diameter = callPackage ./free-diameter {};
@@ -78,27 +72,9 @@ with super;
 
   osmo-cbc = callPackage ./osmo-cbc {};
 
-  osmo-hlr = callPackage ./osmo-hlr {};
-
-  osmo-msc = callPackage ./osmo-msc {};
-
-  osmo-mgw = callPackage ./osmo-mgw {};
-
-  osmo-stp = self.libosmo-sccp;
-
-  osmo-bsc = callPackage ./osmo-bsc {};
-
-  osmo-bts = callPackage ./osmo-bts {};
-
   osmo-trx = callPackage ./osmo-trx {};
 
-  osmo-pcu = callPackage ./osmo-pcu {};
-
-  osmo-sgsn = callPackage ./osmo-sgsn {};
-
-  osmo-ggsn = callPackage ./osmo-ggsn {};
-
-  osmo-sip-connector = callPackage ./osmo-sip-connector {};
+  osmo-stp = self.libosmo-sccp;
 
   srsran = callPackage ./srsran {};
 
