@@ -9,12 +9,12 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "osmo-cbc";
-  version = "0.4.1";
+  version = "0.4.2";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-cbc";
     rev = version;
-    sha256 = "sha256-Seaxwx9n7pkCIcpHN3ekdOYYlnhpjpPzHXuAe2CN6Tg=";
+    sha256 = "sha256-3C5PxXl2d7vfZIOf1xgBmrmFdsxM8nCMG3bb+I0s128=";
   };
 
   postPatch = ''
