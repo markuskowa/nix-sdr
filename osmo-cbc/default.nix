@@ -17,6 +17,8 @@ in stdenv.mkDerivation rec {
     sha256 = "sha256-3C5PxXl2d7vfZIOf1xgBmrmFdsxM8nCMG3bb+I0s128=";
   };
 
+  outputs = [ "out" "lib" "dev" ];
+
   postPatch = ''
     echo "${version}" > .tarball-version
   '';
