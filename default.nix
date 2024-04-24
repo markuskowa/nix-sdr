@@ -72,6 +72,8 @@ with super;
 
   osmo-cbc = callPackage ./osmo-cbc {};
 
+  osmo-smlc = callPackage ./osmo-smlc {};
+
   osmo-trx = callPackage ./osmo-trx {};
 
   osmo-stp = self.libosmo-sccp;
