@@ -1,5 +1,5 @@
 { lib, stdenv, fetchFromGitHub, meson, pkg-config
-, talloc, libyaml, mongoc, lksctp-tools, ninja, flex, bison
+, talloc, libyaml, mongoc, mongosh, lksctp-tools, ninja, flex, bison
 , libgcrypt, libidn, gnutls, libnghttp2, libmicrohttpd, curl, cmake } :
 
 let
@@ -7,7 +7,7 @@ let
     owner = "open5gs";
     repo = "freeDiameter";
     rev = "r1.5.0";
-    sha256 = "sha256-dqdBy/kFZW9EvwX4zdwpb3ZGYcSjfH9FqvSHDaasdR4=";
+    sha256 = "sha256-0sxzQtKBx313+x3TRsmeswAq90Vk5jNA//rOJcEZJTQ=";
   };
 
   libtins = fetchFromGitHub {
@@ -26,13 +26,13 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "open5gs";
-  version = "2.6.6";
+  version = "2.7.1";
 
   src = fetchFromGitHub {
     owner = "open5gs";
     repo = "open5gs";
     rev = "v${version}";
-    sha256 = "sha256-nH5oWqezCDM8UsucgHBf2X4teB1B+tHRfv6IxJFxFgM=";
+    sha256 = "sha256-jlWiie7xT1I6F612v49zDfOElJEnOR5GUzFP38TklJk=";
   };
 
   postPatch = ''
@@ -71,8 +71,10 @@ in stdenv.mkDerivation rec {
     cmake
   ];
 
-  postInstall = ''
+  postInstall = /* bash */''
     cp misc/db/open5gs-dbctl $out/bin
+    substituteInPlace $out/bin/open5gs-dbctl \
+      --replace "mongosh" "${lib.getExe mongosh}"
   '';
 
   meta = with lib; {
