@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "4.4.0";
+  version = "4.5.0";
 
   python = python3.withPackages (ps: with ps; [ pyzmq ]);
 
@@ -15,7 +15,7 @@ in stdenv.mkDerivation {
     owner = "Opendigitalradio";
     repo = "ODR-DabMux";
     rev = "v${version}";
-    sha256 = "sha256-ntVllhzK8vWGknRfCfETXldvgx3QQ//My/Dev2HOltM=";
+    sha256 = "sha256-AL0482ow0HOUqnH0pIJbVcbDHy3j+AXMhsjpVEKKIbU=";
   };
 
   nativeBuildInputs = [ autoconf automake libtool ];
