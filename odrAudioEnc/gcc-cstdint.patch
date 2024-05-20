@@ -1,0 +1,13 @@
+diff --git a/contrib/ReedSolomon.cpp b/contrib/ReedSolomon.cpp
+index 38b3b22..ea3936e 100644
+--- a/contrib/ReedSolomon.cpp
++++ b/contrib/ReedSolomon.cpp
+@@ -32,6 +32,8 @@
+ #include <cstdio>
+ #include <cstring>         // For memcpy
+ 
++#include <cstdint>
++
+ extern "C" {
+ #include "fec/fec.h"
+ }

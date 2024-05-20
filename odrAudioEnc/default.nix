@@ -3,7 +3,7 @@
 } :
 
 let
-  version = "3.3.1";
+  version = "3.5.0";
 
 in stdenv.mkDerivation {
   pname = "odrAudioEnc";
@@ -15,6 +15,8 @@ in stdenv.mkDerivation {
     rev = "v${version}";
     sha256 = "sha256-H0Z8GOVcdm7F6Ph/KUo44lHgbVlV//ZfaDN/uMagXZ4=";
   };
+
+  patches = [ ./gcc-cstdint.patch ];
 
   nativeBuildInputs = [ autoconf automake libtool pkg-config ];
   buildInputs = [
