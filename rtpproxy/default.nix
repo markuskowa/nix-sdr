@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "rtpproxy";
-  version = "2.2.0";
+  version = "3.0.1";
 
   src = fetchFromGitHub {
     owner = "sippy";
     repo = "rtpproxy";
     rev = "v${version}";
-    sha256 = "sha256-yQKlGBd7X3tXcz7oU+fBKBudNOp8nIvntpdEzpPLRoo=";
+    sha256 = "sha256-+XZMntrvivvkDf5ZmzQCdGsiRUZMOC9B/iLBVQ+xbMw=";
     fetchSubmodules = true;
   };
 
