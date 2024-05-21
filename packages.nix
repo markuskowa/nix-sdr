@@ -47,8 +47,6 @@ in rec {
 
   odrSourceCompanion = callPackage ./odrSourceCompanion {};
 
-  kamailio = callPackage ./kamailio {};
-
   libcariboulite = callPackage ./libcariboulite {};
 
   # soapysdr-with-plugins-caribou = super.soapysdr-with-plugins.override {
