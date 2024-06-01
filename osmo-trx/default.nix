@@ -6,12 +6,12 @@
 
 stdenv.mkDerivation rec {
   pname = "osmo-trx";
-  version = "1.6.0";
+  version = "1.6.2";
 
   src = fetchgit {
     url = "https://gitea.osmocom.org/cellular-infrastructure/osmo-trx";
     rev = version;
-    sha256 = "sha256-Nmn8Rjn4Vlq5Laftmw0uZJZRhz+i7Cj+M9PNw10x3ug=";
+    hash = "sha256-rd75bnorqbiRC3mDOTgl7eI0yMCiJsjodjHTQQ7Glg8=";
   };
 
   nativeBuildInputs = [
